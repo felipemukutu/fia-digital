@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const eyebrowCursos = isCursos ? heroRoot.querySelector('.eyebrow') : null;
     const asideCursos = isCursos ? heroRoot.querySelector('.cursos-hero__aside') : null;
     const dashCursos = isCursos ? heroRoot.querySelectorAll('.dash-line--hero-a, .dash-line--hero-b') : [];
+    const courseBannerCursos = isCursos ? document.querySelector('.course-banner') : null;
     const bannerDotsCursos = isCursos ? document.querySelector('.dots--course-banner') : null;
     const bannerContentCursos = isCursos ? document.querySelector('.course-banner__content') : null;
 
@@ -53,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
       cleanupPreload();
       if (dotsEl) dotsEl.classList.add('is-revealed');
       if (isCursos && dashCursos.length) dashCursos.forEach((el) => { el.style.transform = 'none'; });
+      if (courseBannerCursos) { courseBannerCursos.style.opacity = '1'; courseBannerCursos.style.transform = 'none'; }
       if (bannerDotsCursos) bannerDotsCursos.style.setProperty('--reveal', '100%');
       if (bannerContentCursos) { bannerContentCursos.style.opacity = '1'; bannerContentCursos.style.transform = 'none'; }
     } else {
@@ -88,6 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.gsap.set(words, { willChange: 'transform' });
         if (heroMediaEl) window.gsap.set(heroMediaEl, { willChange: 'transform, opacity' });
         if (dashCursos.length) window.gsap.set(dashCursos, { willChange: 'transform' });
+        if (courseBannerCursos) window.gsap.set(courseBannerCursos, { willChange: 'transform, opacity' });
         if (bannerDotsCursos) window.gsap.set(bannerDotsCursos, { willChange: 'opacity' });
         if (bannerContentCursos) window.gsap.set(bannerContentCursos, { willChange: 'transform, opacity' });
 
@@ -107,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.gsap.set(words, { clearProps: 'willChange' });
             if (heroMediaEl) window.gsap.set(heroMediaEl, { clearProps: 'willChange' });
             if (dashCursos.length) window.gsap.set(dashCursos, { clearProps: 'willChange' });
+            if (courseBannerCursos) window.gsap.set(courseBannerCursos, { clearProps: 'willChange' });
             if (bannerDotsCursos) window.gsap.set(bannerDotsCursos, { clearProps: 'willChange' });
             if (bannerContentCursos) window.gsap.set(bannerContentCursos, { clearProps: 'willChange' });
             if (dotsEl) dotsEl.classList.add('is-revealed');
@@ -156,20 +160,28 @@ document.addEventListener('DOMContentLoaded', () => {
           if (visibleDashes.length) tl.to(visibleDashes, { scaleX: 1, duration: 0.65, stagger: 0.12, ease: 'power3.out' }, 1.10);
         }
 
-        // 7) Course-banner — ÚLTIMO da timeline (evita ficar visível antes da hero)
-        if (isCursos && (bannerDotsCursos || bannerContentCursos)) {
+        // 7) Course-banner — a seção inteira (foto + conteúdo) só começa a
+        // aparecer quando a hero (linhas tracejadas) já terminou. Usa um label
+        // preso ao fim real da timeline em vez de um tempo fixo, porque um
+        // valor "chutado" não acompanha o stagger das dash-lines e pode acabar
+        // começando antes da hero terminar de fato.
+        if (isCursos && (courseBannerCursos || bannerDotsCursos || bannerContentCursos)) {
+          tl.addLabel('heroDone');
+          if (courseBannerCursos) {
+            tl.to(courseBannerCursos, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, 'heroDone+=0.05');
+          }
           if (bannerDotsCursos) {
             const hiddenDots = window.getComputedStyle(bannerDotsCursos).display === 'none';
-            if (!hiddenDots) tl.to(bannerDotsCursos, { '--reveal': '100%', duration: 0.90, ease: 'power2.inOut' }, 1.85);
+            if (!hiddenDots) tl.to(bannerDotsCursos, { '--reveal': '100%', duration: 0.90, ease: 'power2.inOut' }, 'heroDone+=0.20');
             else bannerDotsCursos.classList.add('is-revealed');
           }
           if (bannerContentCursos) {
-            tl.to(bannerContentCursos, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' }, 1.95);
+            tl.to(bannerContentCursos, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' }, 'heroDone+=0.30');
           }
         }
 
         heroEntranceDuration = tl.duration();
-        window.setTimeout(cleanupPreload, 3200);
+        window.setTimeout(cleanupPreload, 3600);
       } catch (e) {
         cleanupPreload();
         if (dotsEl) dotsEl.classList.add('is-revealed');

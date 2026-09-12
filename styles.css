@@ -298,6 +298,7 @@ strong { font-weight: 600; }
 /* Dots dessas páginas também congelam até a timeline */
 .js-hero-preload .dots--qs-hero[data-reveal],
 .js-hero-preload .dots--contato[data-reveal] { --reveal: 0%; animation: none; }
+.js-hero-preload .course-banner { opacity: 0; transform: translateY(24px); }
 .js-hero-preload .dots--course-banner { --reveal: 0%; animation: none; }
 .js-hero-preload .course-banner__content { opacity: 0; transform: translateY(16px); }
 /* Dash-lines de Cursos: revelação por largura fakeada com scaleX (GPU, sem layout) */
@@ -315,6 +316,7 @@ strong { font-weight: 600; }
   .js-hero-preload .contato-hero .eyebrow,
   .js-hero-preload .contato-hero__text,
   .js-hero-preload .form-embed,
+  .js-hero-preload .course-banner,
   .js-hero-preload .course-banner__content { opacity: 1; transform: none; }
   .js-hero-preload .dots--hero[data-reveal],
   .js-hero-preload .dots--qs-hero[data-reveal],
@@ -919,7 +921,8 @@ strong { font-weight: 600; }
   transition: grid-template-rows .28s cubic-bezier(.4, 0, .2, 1), opacity .2s ease;
 }
 .faq-item__a.is-open { grid-template-rows: 1fr; opacity: 1; }
-.faq-item__a p { font-size: 16px; line-height: 1.6; color: var(--text); overflow: hidden; padding: 0 28px 28px 58px; }
+.faq-item__a__inner { overflow: hidden; }
+.faq-item__a p { font-size: 16px; line-height: 1.6; color: var(--text); padding: 0 28px 28px 58px; }
 
 @media (prefers-reduced-motion: reduce) {
   .faq-item__a { transition: none; }
