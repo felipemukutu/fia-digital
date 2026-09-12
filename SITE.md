@@ -68,8 +68,10 @@ design original.
      verde escuro (é o que o design pede nesta página).
   2. **Abertura** — "A herança da excelência no ritmo da sua rotina", em texto
      bem grande, sobre a malha de quadradinhos.
-  3. **Quem somos** — dois parágrafos, uma foto com o selo da marca no meio e
-     os dois cartões de números (+46 anos, +150 mil) na versão larga.
+  3. **Quem somos** — dois parágrafos, um carrossel automático de 3 fotos com
+     o selo da marca fixo no meio (troca sozinho a cada 7 segundos, mesmo
+     efeito do carrossel da abertura da Home) e os dois cartões de números
+     (+46 anos, +150 mil) na versão larga.
   4. **Nossa trajetória** — foto do escritório em tela cheia com a frase em
      branco por cima.
   5. **A FIA** — a história da escola ao lado de um vídeo (a moldura já está
@@ -175,7 +177,9 @@ Da página Quem Somos (todos os arquivos começam com `qs-` ou `diretor-`):
 
 | Arquivo | O que é |
 |---|---|
-| `qs-slider.jpg` | foto com o selo da marca por cima |
+| `qs-slider.jpg` | 1ª foto do carrossel "Quem somos" (selo da marca por cima) |
+| `qs-slider-2.jpg` | 2ª foto do carrossel "Quem somos" |
+| `qs-slider-3.jpg` | 3ª foto do carrossel "Quem somos" |
 | `qs-trajetoria.jpg` | foto do escritório na faixa "Nossa trajetória" |
 | `qs-video-poster.jpg` | imagem de capa das duas molduras de vídeo |
 | `qs-marquee-1..4.jpg` | as quatro fotinhas da faixa deslizante |
@@ -202,6 +206,33 @@ Da página Cursos:
 ---
 
 ## Histórico de mudanças
+
+- **12/09/2026** — **Dois títulos de banner ganharam a mesma entrada "palavra
+  por palavra" do título grande da abertura.** São eles: a frase da faixa
+  "Nossa trajetória" (foto do escritório, Quem Somos) e o título da faixa
+  "Saiba mais" (que se repete em Quem Somos, Cursos e Contato, já que é uma
+  peça compartilhada — por isso a mudança apareceu nas três páginas de uma
+  vez, para não ficar inconsistente). Antes esses dois textos só apareciam
+  prontos; agora, ao rolar a página até eles pela primeira vez, cada palavra
+  sobe de baixo para cima em sequência rápida — o mesmo efeito que já existia
+  só no título grande da abertura de cada página, reaproveitando a mesma
+  técnica (GSAP SplitText) e a mesma velocidade/curva. Continua respeitando o
+  ajuste "reduzir movimento" do sistema e funcionando normalmente sem
+  JavaScript (o texto já aparece pronto nesses casos).
+  - Arquivos: `quem-somos.html:116,258`, `cursos.html:499`, `contato.html:203`
+    (atributo `data-split-reveal` nos dois parágrafos), `script.js` (nova
+    seção 11) e `styles.css` (perto do bloco "Revelar ao rolar").
+
+- **12/09/2026** — **Foto da seção "Quem somos" virou um carrossel automático
+  de 3 fotos, igual ao efeito da abertura da Home.** Antes era uma única foto
+  fixa; conferi o arquivo do Figma e o componente realmente tinha 3 fotos
+  desenhadas para essa faixa — só a primeira estava sendo usada. Agora as 3
+  trocam sozinhas a cada 7 segundos, com o mesmo efeito da Home (a foto atual
+  escurece e "abre" de um lado para o outro revelando a próxima, que já entra
+  com um leve zoom contínuo). O selo branco com a marca continua fixo,
+  sempre por cima das fotos, sem se mover. As duas fotos novas
+  (`qs-slider-2.jpg`, `qs-slider-3.jpg`) vieram recortadas do próprio Figma,
+  do mesmo jeito que a primeira.
 
 - **11/09/2026** — **SEO lote 3 — performance de imagens e limpeza de links do rodapé (`loading="lazy"`, `width`/`height`, `href="#"`).**
   - **`loading="lazy"` + `decoding="async"`** em 79 imagens abaixo da dobra (15 em `index.html`, 36 em `quem-somos.html`, 26 em `cursos.html`, 13 em `contato.html`). As imagens LCP (`hero-bg.jpg` em `index.html:43` e `cursos-banner.jpg` em `cursos.html:56`) continuam `eager` com `fetchpriority="high"` para não atrasar o primeiro paint. Logos do cabeçalho/rodapé continuam `eager`.

@@ -660,6 +660,62 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  /* ---------- 8.1 Carrossel de fotos do slider "Quem somos" (mesmo efeito do hero, ciclo de 7s) ---------- */
+  const qsSliderMedia = document.querySelector('.qs-slider__media');
+
+  if (qsSliderMedia) {
+    const qsSlides = Array.from(qsSliderMedia.querySelectorAll('.qs-slider__slide'));
+
+    if (qsSlides.length > 1) {
+      const QS_WIPE_MS = 1200; // precisa bater com a transition de .qs-slider__slide--current.qs-slider__slide--wipe no styles.css
+      const QS_HOLD_MS = 5800; // 5.8s parada + 1.2s de wipe = ciclo de 7s por foto
+      const QS_ZOOM_START = QS_WIPE_MS * 0.8;
+      const QS_ZOOM_MS = QS_HOLD_MS + (QS_WIPE_MS - QS_ZOOM_START); // precisa bater com a transition de .qs-slider__slide--zoom img no styles.css
+      let qsCurrentIndex = 0;
+
+      const qsApplyLayers = () => {
+        qsSlides.forEach((slide, i) => {
+          slide.classList.remove('qs-slider__slide--current', 'qs-slider__slide--next', 'qs-slider__slide--wipe');
+          if (i === qsCurrentIndex) {
+            slide.classList.add('qs-slider__slide--current');
+          } else if (i === (qsCurrentIndex + 1) % qsSlides.length) {
+            slide.classList.add('qs-slider__slide--next');
+          } else {
+            slide.classList.remove('qs-slider__slide--zoom');
+          }
+        });
+      };
+
+      qsApplyLayers();
+
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const qsScheduleWipe = () => {
+          window.setTimeout(() => {
+            qsSlides[qsCurrentIndex].classList.add('qs-slider__slide--wipe');
+            const qsUpcomingIndex = (qsCurrentIndex + 1) % qsSlides.length;
+
+            window.setTimeout(() => {
+              qsSlides[qsUpcomingIndex].classList.add('qs-slider__slide--zoom');
+            }, QS_ZOOM_START);
+
+            window.setTimeout(() => {
+              qsCurrentIndex = qsUpcomingIndex;
+              qsApplyLayers();
+              qsScheduleWipe();
+            }, QS_WIPE_MS);
+          }, QS_HOLD_MS);
+        };
+
+        window.requestAnimationFrame(() => {
+          window.requestAnimationFrame(() => {
+            qsSlides[qsCurrentIndex].classList.add('qs-slider__slide--zoom');
+          });
+        });
+        qsScheduleWipe();
+      }
+    }
+  }
+
   /* ---------- 9. Números que contam até o valor final (cartões de estatística) ---------- */
   const countEls = document.querySelectorAll('[data-count-to]');
 
@@ -799,4 +855,62 @@ document.addEventListener('DOMContentLoaded', () => {
     // última garantia: se ainda não revelou em 3s, força (evita ficar invisível para sempre)
     setTimeout(() => halfGroups.forEach((g) => reveal(g)), 3000);
   })();
+
+  /* ---------- 11. Títulos de banner com entrada palavra por palavra (mesmo efeito do H1 do hero) ---------- */
+  const splitRevealEls = document.querySelectorAll('[data-split-reveal]');
+
+  if (splitRevealEls.length) {
+    const reduceMotionSplit = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const hasGSAPSplit = typeof window.gsap !== 'undefined' && typeof window.SplitText !== 'undefined';
+
+    if (reduceMotionSplit || !hasGSAPSplit || !('IntersectionObserver' in window)) {
+      splitRevealEls.forEach((el) => el.classList.add('is-revealed'));
+    } else {
+      if (window.SplitText) window.gsap.registerPlugin(window.SplitText);
+
+      const revealBannerWords = (el) => {
+        el.classList.add('is-revealed');
+
+        try {
+          const split = window.SplitText.create
+            ? window.SplitText.create(el, { type: 'words', wordsClass: 'word' })
+            : new window.SplitText(el, { type: 'words', wordsClass: 'word' });
+          const words = split.words || [];
+
+          words.forEach((word) => {
+            if (!word.parentElement.classList.contains('word-wrap')) {
+              const wrap = document.createElement('span');
+              wrap.className = 'word-wrap';
+              wrap.style.overflow = 'hidden';
+              wrap.style.display = 'inline-block';
+              wrap.style.verticalAlign = 'bottom';
+              word.parentNode.insertBefore(wrap, word);
+              wrap.appendChild(word);
+            }
+          });
+
+          window.gsap.fromTo(words, { yPercent: 110, opacity: 0 }, {
+            yPercent: 0,
+            opacity: 1,
+            duration: 0.62,
+            stagger: 0.038,
+            ease: 'power3.out',
+            onComplete: () => window.gsap.set(words, { clearProps: 'all' }),
+          });
+        } catch (e) {
+          // se o SplitText falhar por algum motivo, o texto já ficou visível acima
+        }
+      };
+
+      const splitRevealObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          revealBannerWords(entry.target);
+          observer.unobserve(entry.target);
+        });
+      }, { threshold: .3 });
+
+      splitRevealEls.forEach((el) => splitRevealObserver.observe(el));
+    }
+  }
 });
