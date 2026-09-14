@@ -76,8 +76,9 @@ design original.
      (+46 anos, +150 mil) na versão larga.
   4. **Nossa trajetória** — foto do escritório em tela cheia com a frase em
      branco por cima.
-  5. **A FIA** — a história da escola ao lado de um vídeo (a moldura já está
-     pronta e clicável, esperando o link do vídeo).
+  5. **A FIA** — a história da escola ao lado de um vídeo que toca sozinho
+     (sem som) e, ao ser clicado, abre a janela de vídeo — ainda esperando o
+     link do vídeo do YouTube que aparece dentro dessa janela.
   6. **Faixa deslizante** — "Você no controle da jornada" repetido, andando
      sozinho da direita para a esquerda, com fotinhas entre as frases.
   7. **Missão, visão e valores** — três cartões brancos em um carrossel que
@@ -136,9 +137,20 @@ robots.txt        Controle de rastreamento para buscadores
 sitemap.xml       Mapa do site para o Google
 styles.css        Todos os estilos do site
 script.js         Menu do celular, perguntas, carrosséis e filtro de cursos
+vendor/           Bibliotecas prontas de terceiros (animação e rolagem suave)
 images/           Todas as imagens, logos e ícones
 SITE.md           Este documento
 ```
+
+As três bibliotecas dentro de `vendor/` ficam guardadas no próprio projeto, e
+não vêm de um servidor de fora — assim o site nunca depende de um site
+terceiro estar no ar para funcionar:
+
+| Arquivo | Para que serve |
+|---|---|
+| `gsap.min.js` | Motor das animações (abertura da Home, entradas das seções) |
+| `SplitText.min.js` | Quebra os títulos em palavras, para entrarem uma a uma |
+| `lenis.min.js` | Rolagem suave da página |
 
 ### Peças que se repetem entre as páginas
 
@@ -183,7 +195,8 @@ Da página Quem Somos (todos os arquivos começam com `qs-` ou `diretor-`):
 | `qs-slider-2.jpg` | 2ª foto do carrossel "Quem somos" |
 | `qs-slider-3.jpg` | 3ª foto do carrossel "Quem somos" |
 | `qs-trajetoria.jpg` | foto do escritório na faixa "Nossa trajetória" |
-| `qs-video-poster.jpg` | imagem de capa das duas molduras de vídeo |
+| `qs-video-poster.jpg` | primeiro quadro das duas molduras de vídeo (enquanto o vídeo carrega) |
+| `fia-video.mp4` | vídeo que toca sozinho, sem som, nas duas molduras da Quem Somos |
 | `qs-marquee-1..4.jpg` | as quatro fotinhas da faixa deslizante |
 | `qs-diferenciais.jpg` | foto da seção de diferenciais |
 | `qs-saiba-mais.jpg` | foto da faixa "Saiba mais" |
@@ -208,6 +221,119 @@ Da página Cursos:
 ---
 
 ## Histórico de mudanças
+
+- **14/09/2026** — **O link "Entre em contato conosco" do rodapé ficou maior.**
+  Aquele link no fim do rodapé passou de 16px para 20px, ficando mais fácil de
+  ver. Como o rodapé é o mesmo em todas as páginas, a mudança vale para o site
+  inteiro.
+  - Arquivos: `styles.css` (regra `.footer-contact`).
+
+- **14/09/2026** — **A etiqueta "Arraste" sumiu de cima dos filtros de curso.**
+  Na página **Cursos**, ao passar o mouse pela faixa dos botões de filtro
+  (Graduação / Pós-graduação / MBA), aparecia a etiqueta "Arraste" seguindo o
+  cursor — a mesma usada nos carrosséis. Como ali os botões já parecem
+  clicáveis, a etiqueta atrapalhava mais do que ajudava. Ela foi removida
+  **apenas dessa faixa**: o arraste com o mouse, o deslizar lateral e o clique
+  nos filtros continuam funcionando exatamente como antes, e a etiqueta segue
+  normal nos carrosséis de Missão/Visão/Valores, Diretoria executiva e Corpo
+  docente.
+  - Arquivos: `cursos.html` (a faixa de filtros ganhou a marca
+    `data-drag-hint="off"`) e `script.js` (a etiqueta agora ignora qualquer
+    elemento com essa marca).
+
+- **14/09/2026** — **Os nomes nos cards de professores e diretores voltaram a
+  quebrar naturalmente.** Antes havia uma regra que apertava o nome numa coluna
+  estreita só para forçar a quebra em duas linhas. O efeito colateral aparecia no
+  carrossel do **Corpo docente** (página Cursos) e na **Diretoria executiva**
+  (página Quem Somos): nomes muito longos chegavam a três linhas, o bloco branco
+  de texto crescia num card e não no outro, e a parte visível da foto ficava
+  diferente em cada um. Agora o nome usa a largura do card e quebra só quando
+  precisa, e o bloco branco tem a mesma altura em todos os cards — foto e área de
+  conteúdo ficam alinhadas na fileira inteira. O nome também passou a reservar
+  um espaço à direita para não passar por baixo do ícone do LinkedIn.
+
+- **14/09/2026** — **A rolagem do site inteiro ficou mais suave.** Antes, girar a
+  rodinha do mouse dava um "pulo" seco de uns poucos centímetros por vez. Agora
+  a página desliza até onde você parou, com um movimento curto e contínuo — a
+  mesma sensação de sites de estúdio e de agência. Isso vale para as quatro
+  páginas, e os links que levam a um ponto da própria página (o "FAQ" no rodapé
+  da Home, o "Entre em contato conosco" da Contato) também deslizam em vez de
+  saltar. Detalhes de cuidado: **no celular nada mudou** — lá continua a rolagem
+  nativa do aparelho, que é melhor do que qualquer coisa colocada por cima; os
+  **carrosséis que rolam para o lado** (missão/visão/valores, diretoria, corpo
+  docente, filtros de cursos) continuam se comportando como antes; a **animação
+  de abertura da Home** trava a página enquanto roda e devolve a rolagem no fim,
+  como já fazia; **quem tem "reduzir movimento" ligado** no sistema continua com
+  a rolagem normal, sem efeito nenhum. O **vídeo em tela cheia** ganhou uma
+  melhoria de brinde: com ele aberto, a página atrás agora fica parada (antes
+  ela rolava por baixo). A biblioteca usada é o Lenis, guardada no projeto em
+  `vendor/lenis.min.js`.
+
+- **14/09/2026** — **Na página Cursos, os botões de filtro agora deslizam para o
+  lado no celular.** Em telas de até 590 px de largura, "Graduação",
+  "Pós-graduação" e "MBA" quebravam em mais de uma linha e ocupavam bastante
+  espaço. Agora eles ficam sempre numa única faixa, e a pessoa arrasta essa faixa
+  para o lado (como um carrossel) para alcançar o último filtro — com o dedo no
+  celular ou segurando o botão do mouse e arrastando no computador, sem barra de
+  rolagem aparecendo na tela. Enquanto arrasta, o cursor vira uma "mãozinha
+  fechada" e o clique não é confundido com a seleção de um filtro. A faixa vai até a borda da tela, então o filtro
+  seguinte aparece "cortado" na lateral, deixando claro que tem mais coisa para
+  o lado. Acima de 590 px nada mudou.
+
+- **14/09/2026** — **Na página Contato, o link "Entre em contato conosco" do FAQ
+  agora leva ao formulário da própria página.** Antes ele apontava para a página
+  de Contato — ou seja, recarregava a página em que a pessoa já estava. Agora ele
+  rola suavemente até o bloco do formulário, no topo da página, com um respiro de
+  90 px para o conteúdo não ficar colado na borda de cima.
+
+- **14/09/2026** — **A coluna da esquerda do FAQ agora acompanha a rolagem.**
+  Nas perguntas frequentes (Home e Contato), o título "Perguntas frequentes" e o
+  bloco de contato ficavam parados no topo e sumiam da tela quando a pessoa
+  descia para ler as respostas. Agora essa coluna "gruda" a 100 px do topo e
+  desce junto até o fim da lista de perguntas — então, por mais perguntas que
+  existam, o contato continua sempre à vista. No celular, onde as duas colunas
+  viram uma só, nada mudou.
+
+- **14/09/2026** — **As aspas dos depoimentos (página Cursos) viraram desenho e
+  ganharam contorno branco.** Antes eram o caractere de aspas digitado como
+  texto. Agora usam o desenho vetorial do Figma (`images/ico-aspas.svg`): a
+  duas barrinhas verde-limão inclinadas com uma borda branca em volta. Ficaram
+  um pouco maiores (64 × 47 px no computador, 53 × 39 px no celular) e continuam
+  posicionadas em cima da linha da esquerda do cartão — o contorno branco
+  "apaga" um pedacinho dessa linha, dando a impressão de um respiro na moldura
+  do depoimento.
+
+- **14/09/2026** — **Os cartões de curso ficaram clicáveis por inteiro.** Na
+  página inicial e na página Cursos, antes só o "Matricule-se" levava para a
+  página de Contato; agora dá para clicar em qualquer ponto do cartão — a foto,
+  as tags, o título ou o espaço em branco. O cursor vira uma mãozinha em cima
+  do cartão todo e, ao passar o mouse, o "Matricule-se" escurece junto com a
+  borda verde e o zoom da foto que já existiam. Por baixo dos panos continua
+  existindo **um único link** por cartão (bom para o Google e para leitores de
+  tela); ele só foi esticado por cima do cartão inteiro. Nada mudou no texto
+  nem no visual dos cartões.
+
+- **14/09/2026** — **Os nomes dos diretores (seção "Diretoria executiva da
+  FIA", na página Quem Somos) agora aparecem sempre em duas linhas.** A caixa
+  do nome ficou mais estreita (195px), o que faz até os nomes curtos quebrarem
+  sozinhos — "Roberto Sbragia" virou "Roberto / Sbragia". Como todos os nomes
+  ocupam duas linhas, o cargo logo abaixo começa na mesma altura em todos os
+  cartões. Se um nome novo for muito comprido e passar de duas linhas, basta
+  aumentar um pouco esse valor em `styles.css` (`.person-card__body h3`).
+
+- **14/09/2026** — **As duas molduras de vídeo da página Quem Somos agora
+  mostram o vídeo tocando sozinho, no lugar da imagem parada.** O arquivo
+  usado é `images/fia-video.mp4`. Ele começa automaticamente, fica em
+  repetição, **sem som**, e continua funcionando como antes: ao clicar na
+  moldura (ou no botão de play), abre a janela de vídeo por cima da página.
+  A imagem antiga (`qs-video-poster.jpg`) continua sendo usada como primeiro
+  quadro, enquanto o vídeo carrega.
+  - Por cima do vídeo há um **véu escuro** (um filtro levemente escuro), para o
+    botão de play ficar bem legível independente da cena que estiver passando.
+  - **Ao passar o mouse na moldura**, o quadrado do play se preenche de
+    verde-água, a setinha fica branca e a palavra **PLAY** aparece à esquerda
+    dela, com o quadrado se alargando suavemente. Tudo isso com transição
+    suave (começa e termina devagar).
 
 - **14/09/2026** — **Nova animação de carregamento na página inicial, só na
   primeira vez que alguém visita o site (baseada numa sequência de quadros
@@ -1037,6 +1163,12 @@ Da página Cursos:
   contar o novo automaticamente.
 - **Adicionar uma pergunta no FAQ:** copie um bloco `<div class="faq-item">`
   inteiro e troque a pergunta e a resposta.
+- **Ajustar a rolagem suave:** abra o `script.js`, logo no começo tem o bloco
+  "Rolagem suave (Lenis)". O número em `duration: 1.05` é o tamanho do deslize:
+  baixe para `0.7` se quiser a rolagem mais direta, suba para `1.5` se quiser
+  mais deslizante. Para desligar de vez, apague a linha
+  `<script src="vendor/lenis.min.js"></script>` das quatro páginas — o resto do
+  site continua funcionando normalmente.
 - **Adicionar alguém na diretoria ou no corpo docente:** copie um bloco
   `<article class="person-card">` inteiro (existe no `quem-somos.html` e no
   `cursos.html`) e troque a foto, o nome e o cargo. As setas passam a contar o

@@ -3,6 +3,35 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  /* ---------- 0a. Rolagem suave (Lenis) ----------
+     Deixa a rolagem com um deslize curto em vez do "pulo" seco do mouse.
+     Para mudar a intensidade, mexa no `duration` abaixo: menor = mais
+     direto, maior = mais deslizante. No celular fica de fora de propósito
+     (o padrão do Lenis é não tocar no toque): a rolagem nativa do sistema
+     já é boa e qualquer coisa por cima dela só atrapalha.
+     Quem quiser desligar: basta tirar o <script src="vendor/lenis.min.js">
+     das páginas — o resto do site continua funcionando igual. */
+  const lenis =
+    !window.matchMedia('(prefers-reduced-motion: reduce)').matches && typeof window.Lenis !== 'undefined'
+      ? new window.Lenis({
+          duration: 1.05,
+          easing: (t) => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t)),
+          smoothWheel: true,
+          touchMultiplier: 1.5,
+          // faz os links âncora (#faq, #formulario, #fale-conosco) deslizarem
+          anchors: true,
+          autoRaf: true,
+          // carrosséis que rolam de lado continuam com a rolagem nativa deles
+          prevent: (node) =>
+            node.hasAttribute('data-drag-scroll') || node.hasAttribute('data-lenis-prevent'),
+        })
+      : null;
+
+  // Usados sempre que a página precisa ficar parada (animação de abertura da
+  // Home, vídeo em tela cheia). Seguros de chamar mesmo sem o Lenis ligado.
+  const travarRolagem = () => { if (lenis) lenis.stop(); };
+  const soltarRolagem = () => { if (lenis) lenis.start(); };
+
   /* ---------- 0. Hero entrance — timeline GSAP (orquestração completa) ---------- */
   // Home (.hero) + Quem Somos (.qs-hero) + Cursos (.cursos-hero) + Contato (.contato-hero)
   // Mesma curva (--ease-out → power3.out), só transform/opacity/--reveal, por último dots→dash
@@ -28,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cleanupPreload = () => {
       document.documentElement.classList.remove('js-hero-preload');
       document.documentElement.classList.remove('js-preloader-active');
+      soltarRolagem();
     };
 
     // Mapeia elementos por tipo de hero
@@ -224,6 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // dentro do tl.to(heroMediaEl,...) mais abaixo.
     const skip = () => {
       html.classList.remove('js-preloader-active');
+      soltarRolagem();
       if (preloaderEl) preloaderEl.remove();
       onDone(false);
     };
@@ -311,6 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
           // preloader) e a foto pisca escura até a entrada da hero terminar.
           window.gsap.set(heroMediaEl, { opacity: 1 });
           html.classList.remove('js-preloader-active');
+          soltarRolagem();
           preloaderEl.remove();
         }
       });
@@ -389,6 +421,12 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   if (preloaderShouldRun) {
+    // A trava de rolagem do preloader é feita no CSS (html.js-preloader-active
+    // { overflow: hidden }), e o Lenis precisa ser avisado na mesma hora —
+    // senão ele continuaria empurrando a página por baixo da animação. Quem
+    // solta de volta é o soltarRolagem() lá dentro do runPreloader.
+    travarRolagem();
+
     // Só monta a timeline de entrada (header/h1/textos/botões) depois que o
     // preloader termina — se montasse antes, o próprio gsap.timeline já
     // aplicaria o estado "de" (heroMediaEl escondido) na hora da criação,
@@ -559,6 +597,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     rail.addEventListener('pointerdown', (event) => {
       if (event.pointerType !== 'mouse') return;
+      // sem nada pra rolar (ex.: filtros no desktop), o arraste nem começa —
+      // assim um clique com o mouse tremendo continua valendo como clique
+      if (rail.scrollWidth <= rail.clientWidth) return;
       isDown = true;
       dragged = false;
       startX = event.clientX;
@@ -593,7 +634,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* ---------- 4c. Dica "Arraste" acompanhando o cursor nos carrosséis ---------- */
-  const dragHintRails = document.querySelectorAll('[data-drag-scroll]');
+  // data-drag-hint="off" mantém o arraste, mas sem a etiqueta seguindo o cursor
+  // (é o caso dos filtros de curso, que já parecem botões clicáveis).
+  const dragHintRails = document.querySelectorAll('[data-drag-scroll]:not([data-drag-hint="off"])');
   const reduceMotionDragHint = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   if (dragHintRails.length && !reduceMotionDragHint) {
@@ -774,6 +817,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeLightbox = () => {
       lightbox.hidden = true;
       iframe.src = '';
+      soltarRolagem();
       if (lastFocused) lastFocused.focus();
     };
 
@@ -781,6 +825,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const videoId = button.dataset.youtube;
       lastFocused = button;
       lightbox.hidden = false;
+      // com o vídeo ocupando a tela inteira, a página atrás fica parada
+      travarRolagem();
 
       if (videoId) {
         iframe.hidden = false;

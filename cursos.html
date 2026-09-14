@@ -89,7 +89,7 @@
     <div class="catalog__inner">
       <div class="catalog__head">
         <p class="catalog__lead">Escolha o seu próximo passo profissional entre nossas modalidades:</p>
-        <div class="filters" role="group" aria-label="Filtrar cursos por modalidade">
+        <div class="filters" role="group" data-drag-scroll data-drag-hint="off" aria-label="Filtrar cursos por modalidade">
           <button class="btn btn--stroke-dark" type="button" data-filter="grad" aria-pressed="false">Graduação</button>
           <button class="btn btn--stroke-dark" type="button" data-filter="pos" aria-pressed="false">Pós-graduação</button>
           <button class="btn btn--stroke-dark" type="button" data-filter="mba" aria-pressed="false">MBA</button>
@@ -384,7 +384,7 @@
 
       <div class="wall__stack" data-reveal-group>
         <figure class="quote-card quote-card--a" data-reveal>
-          <span class="quote-card__mark" aria-hidden="true">&rdquo;</span>
+          <img class="quote-card__mark" src="images/ico-aspas.svg" alt="" aria-hidden="true" width="64" height="47" decoding="async">
           <figcaption class="quote-card__course">MBA em Gestão Estratégica</figcaption>
           <blockquote>O formato digital me deu a autonomia que eu precisava para conciliar a rotina de diretoria com os estudos, sem perder a profundidade de discussão que só a FIA entrega.</blockquote>
           <div class="quote-card__author">
@@ -397,7 +397,7 @@
         </figure>
 
         <figure class="quote-card quote-card--b" data-reveal>
-          <span class="quote-card__mark" aria-hidden="true">&rdquo;</span>
+          <img class="quote-card__mark" src="images/ico-aspas.svg" alt="" aria-hidden="true" width="64" height="47" decoding="async">
           <figcaption class="quote-card__course">Pós-graduação em Tecnologias Emergentes</figcaption>
           <blockquote>Estudei nos intervalos entre projetos e ainda assim entreguei o TCC sobre um problema real da minha área. Duas semanas depois, ele virou um piloto dentro da empresa.</blockquote>
           <div class="quote-card__author">
@@ -410,7 +410,7 @@
         </figure>
 
         <figure class="quote-card quote-card--c" data-reveal>
-          <span class="quote-card__mark" aria-hidden="true">&rdquo;</span>
+          <img class="quote-card__mark" src="images/ico-aspas.svg" alt="" aria-hidden="true" width="64" height="47" decoding="async">
           <figcaption class="quote-card__course">MBA em Gestão de Negócios</figcaption>
           <blockquote>As discussões de caso com colegas de outros setores mudaram a forma como eu leio um balanço. Saí do curso com uma tese de investimento pronta para defender no comitê.</blockquote>
           <div class="quote-card__author">
@@ -423,7 +423,7 @@
         </figure>
 
         <figure class="quote-card quote-card--d" data-reveal>
-          <span class="quote-card__mark" aria-hidden="true">&rdquo;</span>
+          <img class="quote-card__mark" src="images/ico-aspas.svg" alt="" aria-hidden="true" width="64" height="47" decoding="async">
           <figcaption class="quote-card__course">Pós-graduação em Liderança Digital</figcaption>
           <blockquote>Entrei querendo trocar de área e saí com um plano de transição escrito, revisado por professores que fazem isso todo dia no mercado.</blockquote>
           <div class="quote-card__author">
@@ -595,6 +595,7 @@
   </div>
 </footer>
 
+<script src="vendor/lenis.min.js"></script>
 <script src="vendor/gsap.min.js"></script>
 <script src="vendor/SplitText.min.js"></script>
 <script src="script.js"></script>

@@ -132,8 +132,17 @@
         </div>
 
         <button class="video-frame" type="button" data-youtube="" aria-label="Assistir ao vídeo institucional da FIA">
-          <img decoding="async" loading="lazy" width="1100" height="614" class="video-frame__poster" src="images/qs-video-poster.jpg" alt="">
-          <img decoding="async" loading="lazy" class="video-frame__play" src="images/ico-play.svg" alt="" width="70" height="70">
+          <video class="video-frame__poster" src="images/fia-video.mp4" poster="images/qs-video-poster.jpg" autoplay muted loop playsinline preload="metadata" aria-hidden="true" tabindex="-1"></video>
+          <span class="video-frame__play">
+            <span class="video-frame__play-label">Play</span>
+            <svg class="video-frame__play-icon" width="6" height="10" viewBox="32 30 6 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M34 40H32V38H34V40Z" fill="currentColor"/>
+              <path d="M36 38H34V36H36V38Z" fill="currentColor"/>
+              <path d="M38 36H36V34H38V36Z" fill="currentColor"/>
+              <path d="M36 34H34V32H36V34Z" fill="currentColor"/>
+              <path d="M34 32H32V30H34V32Z" fill="currentColor"/>
+            </svg>
+          </span>
         </button>
       </div>
     </div>
@@ -350,8 +359,17 @@
         </div>
 
         <button class="video-frame" type="button" data-youtube="" aria-label="Assistir ao vídeo da FIA digital">
-          <img decoding="async" loading="lazy" width="1100" height="614" class="video-frame__poster" src="images/qs-video-poster.jpg" alt="">
-          <img decoding="async" loading="lazy" class="video-frame__play" src="images/ico-play.svg" alt="" width="70" height="70">
+          <video class="video-frame__poster" src="images/fia-video.mp4" poster="images/qs-video-poster.jpg" autoplay muted loop playsinline preload="metadata" aria-hidden="true" tabindex="-1"></video>
+          <span class="video-frame__play">
+            <span class="video-frame__play-label">Play</span>
+            <svg class="video-frame__play-icon" width="6" height="10" viewBox="32 30 6 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M34 40H32V38H34V40Z" fill="currentColor"/>
+              <path d="M36 38H34V36H36V38Z" fill="currentColor"/>
+              <path d="M38 36H36V34H38V36Z" fill="currentColor"/>
+              <path d="M36 34H34V32H36V34Z" fill="currentColor"/>
+              <path d="M34 32H32V30H34V32Z" fill="currentColor"/>
+            </svg>
+          </span>
         </button>
       </div>
     </div>
@@ -462,6 +480,7 @@
   </div>
 </div>
 
+<script src="vendor/lenis.min.js"></script>
 <script src="vendor/gsap.min.js"></script>
 <script src="vendor/SplitText.min.js"></script>
 <script src="script.js"></script>
