@@ -207,6 +207,67 @@ Da página Cursos:
 
 ## Histórico de mudanças
 
+- **14/09/2026** — **Malha de pontinhos da seção "Sobre" não invade mais
+  atrás do título.** A faixa da direita (que cobre a largura toda da seção,
+  por baixo de tudo) ficava com um pouco de opacidade bem na região onde o
+  título fica por cima — dava pra notar quadradinhos "vazando" entre as
+  linhas do texto. Deixei essa região praticamente invisível (quase 0% de
+  opacidade) até passar do título; só depois disso a malha volta a subir
+  normalmente até ficar sólida na borda direita.
+  - Arquivo: `styles.css`, variável `--fade` de `.dots--about`.
+
+- **14/09/2026** — **Ajustes finos na malha de pontinhos da seção "Sobre"
+  (Home): quadradinhos maiores do lado direito e cor sólida do lado
+  esquerdo.**
+  1. Os quadradinhos da faixa da direita (a mais visível, perto da borda da
+     página) ficaram um pouco maiores, só nessa faixa — as outras malhas do
+     site continuam do tamanho de sempre.
+  2. A faixa da esquerda (a nova, ao lado do título) deixou de usar o
+     degradê limão-verde-água e passou a usar uma única cor sólida
+     (`#c7faba`), como pediu o usuário.
+  - Arquivo: `styles.css`, regras `.dots--about` (variável `--sq`) e
+    `.dots--about-left` (variável `--dot-grad`).
+
+- **14/09/2026** — **Cor do degradê dos quadradinhos ajustada para bater com
+  o Figma.** O primeiro tom (limão) começava totalmente transparente, o que
+  deixava a cor de cada quadradinho meio "lavada" perto do início da malha.
+  Conferi o painel de cores do Figma e os dois tons devem ser sólidos (sem
+  transparência): limão (`#c2fa75`) a partir de 4% do degradê, e verde-água
+  (`#08e7c7`) até o final (100%). Como esse degradê é compartilhado por toda
+  malha de pontinhos do site (abertura, "Sobre", faixa de transição, Cursos,
+  Contato etc.), o ajuste vale para todas de uma vez.
+  - Arquivo: `styles.css`, variável `--grad-dots`.
+
+- **14/09/2026** — **Malha de pontinhos da seção "Sobre" (Home) ganhou uma
+  faixa também do lado esquerdo do título, só no computador.** Conferi o
+  arquivo do Figma e a malha de quadradinhos dessa seção não era só a faixa
+  da direita que já existia — tinha uma segunda faixa, menor, do lado
+  esquerdo do título, com o esmaecimento invertido (mais visível na borda
+  esquerda da página, sumindo conforme se aproxima do título). Adicionei essa
+  faixa que faltava, com a mesma técnica das outras malhas do site.
+  - Isso só aparece em telas de computador (acima de 1200px de largura),
+    porque é só nesse tamanho que a seção "Sobre" tem aquele recuo extra de
+    109px à esquerda (ver changelog de 10/09/2026) que abre espaço pra essa
+    faixa existir. No tablet e no celular continua igual a antes.
+  - Arquivos: `index.html` (nova `<div class="dots dots--about-left">`,
+    dentro da seção "Sobre") e `styles.css` (nova regra `.dots--about-left`).
+
+- **14/09/2026** — **Ajustes na página Quem Somos: espaço acima do título de
+  abertura e recuo do texto "Quem somos".**
+  1. **Espaço antes do título** — na faixa de abertura (a área branca com os
+     quadradinhos, antes de "A herança da excelência..."), o espaço entre o
+     menu e o título estava bem maior do que na página Cursos. Reduzimos a
+     altura mínima dessa faixa para que o espaço fique igual ao da Cursos.
+     - Arquivo: `styles.css`, regra `.qs-hero` (`min-height` de `650px` para
+       `530px`).
+  2. **Recuo do texto "Quem somos"** — o parágrafo ao lado do carrossel de
+     fotos (logo abaixo do título) agora começa com o mesmo recuo à esquerda
+     que o texto da seção "Sobre" tem na página inicial, em vez de ficar
+     colado na margem da página.
+     - Arquivo: `styles.css`, nova regra `.qs-intro__row .prose-block`
+       (`margin-left: 109px`, removido em telas de laptop e menores, a partir
+       de 1280px de largura, para não espremer o texto contra a foto).
+
 - **14/09/2026** — **Quadradinhos verdes agora ficam colados na borda direita,
   sem cortar nem sobrar vão, em três faixas: abertura da Home, "Sobre" (Home) e
   abertura da Quem Somos.** Nessas três faixas, a malha de quadradinhos tem

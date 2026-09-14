@@ -37,7 +37,7 @@ img, svg { display: block; max-width: 100%; }
   --grad-dash-a: linear-gradient(90deg, rgba(194, 250, 117, 0) 0%, #9bf686 21%, #2cebb8 82%, rgba(9, 231, 199, 0) 100%);
   --grad-dash-b: linear-gradient(90deg, #c2fa75 0%, rgba(105, 241, 156, 0) 14%, rgba(54, 236, 179, 0) 39%, #08e7c7 100%);
   --grad-dash-c: linear-gradient(90deg, #c2fa75 0%, #b6f782 42%, rgba(9, 231, 199, 0) 100%);
-  --grad-dots:   linear-gradient(94deg, rgba(194, 250, 117, 0) 0%, #08e7c7 101.92%);
+  --grad-dots:   linear-gradient(94deg, #c2fa75 4%, #08e7c7 100%);
   --grad-dots-transition: linear-gradient(29deg, #c2fa75 0%, rgba(8, 231, 199, 0) 65.38%);
 
   /* Curva padrão para entradas (strong ease-out) */
@@ -179,7 +179,7 @@ strong { font-weight: 600; }
    sempre o gradiente --grad-dots (limão → verde-água, direto do Figma),
    e uma terceira máscara (--fade) esmaece a malha de um lado para o outro. */
 .dots {
-  --sq: 10px;
+  --sq: 12px;
   --pitch-x: 77px;
   --pitch-y: 77px;
   --dot-grad: var(--grad-dots);
@@ -555,9 +555,13 @@ strong { font-weight: 600; }
   left: var(--edge);
   right: var(--edge);
   height: 203px;
+  --sq: 15px;
   --pitch-x: 92.2px;
   --pitch-y: 91.5px;
-  --fade: linear-gradient(90deg, rgba(0, 0, 0, .12) 0%, rgba(0, 0, 0, .45) 55%, #000 100%);
+  /* Bem apagada até passar da faixa do título (~41% da largura da caixa),
+     pra não "invadir" visualmente atrás do texto; só depois disso é que
+     começa a subir de verdade até ficar sólida na borda direita. */
+  --fade: linear-gradient(90deg, rgba(0, 0, 0, .03) 0%, rgba(0, 0, 0, .04) 41%, rgba(0, 0, 0, .45) 55%, #000 100%);
   /* Mesma âncora do .dots--hero: cola o quadrado da direita (lado visível
      pelo --fade) na borda direita, sem vão, em qualquer largura. */
   -webkit-mask-position: calc(100% + var(--pitch-x) - var(--sq)) top;
@@ -565,6 +569,27 @@ strong { font-weight: 600; }
   @media (max-width: 768px) {
     display: none;
   }
+}
+
+/* No computador sobra uma faixa livre à esquerda do título (por causa do
+   recuo de 109px logo abaixo). Igual ao Figma, essa faixa ganha sua própria
+   malha, independente da que já existe do lado direito — mesma técnica do
+   par .dots--edge-left/.dots--edge-right usado em "Diferenciais". Do tablet
+   pra baixo esse recuo some (ver bloco "Responsivo" ≤1200px), então a faixa
+   nova fica escondida e a malha volta a ser só a de sempre. */
+.dots--about-left {
+  display: none;
+  top: 78px;
+  left: var(--edge);
+  width: 109px;
+  height: 203px;
+  --pitch-x: 92.2px;
+  --pitch-y: 91.5px;
+  --dot-grad: linear-gradient(#c7faba, #c7faba);
+  --fade: linear-gradient(90deg, #000 0%, rgba(0, 0, 0, .35) 55%, rgba(0, 0, 0, .1) 100%);
+}
+@media (min-width: 1201px) {
+  .dots--about-left { display: block; }
 }
 
 .about__content {
@@ -1384,7 +1409,7 @@ body:has(.transition) .site-footer { margin-top: -620px; }
 /* ---------- Abertura ---------- */
 .qs-hero {
   background: var(--white);
-  min-height: 650px;
+  min-height: 530px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1446,6 +1471,9 @@ body:has(.transition) .site-footer { margin-top: -620px; }
 }
 
 .qs-intro__row { display: flex; align-items: center; justify-content: space-between; gap: 128px; }
+
+/* Mesmo recuo do texto em .about__content (home) */
+.qs-intro__row .prose-block { margin-left: 109px; }
 
 /* Carrossel automático (3 fotos) com o selo da marca fixo por cima, igual ao
    fundo rotativo da abertura da Home — ver `.hero__media` / `.hero__slide` */
@@ -2025,6 +2053,7 @@ body:has(main > .cta-banner:last-child) .site-footer { margin-top: -768px; }
   .qs-intro__row { gap: 64px; }
   .qs-fia__row   { gap: 64px; }
   .qs-video__row { gap: 64px; }
+  .qs-intro__row .prose-block { margin-left: 0; }
   .big-numbers--wide .bn-card { width: 50%; }
   .benefits__grid { grid-template-columns: 1fr; }
   .benefits__photo { height: 384px; }
