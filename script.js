@@ -392,9 +392,9 @@ document.addEventListener('DOMContentLoaded', () => {
     hint.className = 'drag-hint';
     hint.setAttribute('aria-hidden', 'true');
     hint.innerHTML =
-      '<span class="drag-hint__arrow drag-hint__arrow--left"><svg viewBox="0 0 8 12" aria-hidden="true"><rect x="4" y="0" width="4" height="4" fill="currentColor"/><rect x="0" y="4" width="4" height="4" fill="currentColor"/><rect x="4" y="8" width="4" height="4" fill="currentColor"/></svg></span>' +
+      '<span class="drag-hint__arrow drag-hint__arrow--left"><svg class="ico-chevron" viewBox="-0.5 -0.5 7 11" aria-hidden="true"><path fill="currentColor" d="M2.414 1L1 2.414L-0.414 1L1 -0.414Z M4.414 3L3 4.414L1.586 3L3 1.586Z M6.414 5L5 6.414L3.586 5L5 3.586Z M4.414 7L3 8.414L1.586 7L3 5.586Z M2.414 9L1 10.414L-0.414 9L1 7.586Z"/></svg></span>' +
       '<span class="drag-hint__text">Arraste</span>' +
-      '<span class="drag-hint__arrow drag-hint__arrow--right"><svg viewBox="0 0 8 12" aria-hidden="true"><rect x="0" y="0" width="4" height="4" fill="currentColor"/><rect x="4" y="4" width="4" height="4" fill="currentColor"/><rect x="0" y="8" width="4" height="4" fill="currentColor"/></svg></span>';
+      '<span class="drag-hint__arrow drag-hint__arrow--right"><svg class="ico-chevron" viewBox="-0.5 -0.5 7 11" aria-hidden="true"><path fill="currentColor" d="M2.414 1L1 2.414L-0.414 1L1 -0.414Z M4.414 3L3 4.414L1.586 3L3 1.586Z M6.414 5L5 6.414L3.586 5L5 3.586Z M4.414 7L3 8.414L1.586 7L3 5.586Z M2.414 9L1 10.414L-0.414 9L1 7.586Z"/></svg></span>';
     document.body.appendChild(hint);
 
     const pos = { x: 0, y: 0 };
@@ -449,6 +449,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.pointerType !== 'mouse' || !hovering) return;
         target.x = event.clientX;
         target.y = event.clientY;
+        // some sobre links (ex.: LinkedIn da diretoria) pra não tampar o cursor de "mãozinha"
+        if (!rail.classList.contains('is-dragging')) {
+          scale.target = event.target.closest('a') ? 0 : 1;
+        }
         startLoop();
       });
 

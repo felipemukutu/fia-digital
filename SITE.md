@@ -207,6 +207,106 @@ Da página Cursos:
 
 ## Histórico de mudanças
 
+- **14/09/2026** — **Quadradinhos verdes agora ficam colados na borda direita,
+  sem cortar nem sobrar vão, em três faixas: abertura da Home, "Sobre" (Home) e
+  abertura da Quem Somos.** Nessas três faixas, a malha de quadradinhos tem
+  largura flexível (acompanha o tamanho da tela) e é desenhada para ficar bem
+  visível do lado direito, esmaecendo para o lado esquerdo. Dois problemas
+  foram corrigidos em sequência, os dois pela mesma causa raiz — a "grade" de
+  quadradinhos sempre começava a se desenhar a partir da esquerda da caixa:
+  1. Em certas larguras de tela, o quadradinho bem na borda direita (o mais
+     visível de todos) ficava **cortado ao meio**.
+  2. Ao corrigir isso ancorando a grade pela direita, sobrou um **vão vazio**
+     antes da borda (cada quadradinho ocupa só uma cantinho da sua célula da
+     grade, então ancorar pela célula inteira deixava ~65-80px de espaço em
+     branco até a borda, em vez do quadrado ficar "grudado" nela).
+  Agora a grade é ancorada exatamente pelo próprio quadradinho (não pela
+  célula), então ele sempre termina rente à borda direita, sem vão e sem
+  corte, em qualquer largura de tela. Se algum quadrado for cortado, é um dos
+  da esquerda, onde a malha já está quase invisível pelo esmaecimento.
+  - Arquivo: `styles.css`, regras `.dots--hero`, `.dots--about` e
+    `.dots--qs-hero` (propriedade `mask-position:
+    calc(100% + var(--pitch-x) - var(--sq)) top`).
+
+- **14/09/2026** — **Etiqueta "Arraste" do carrossel (Quem Somos, Missão/Visão/
+  Valores): respiro menor, some sobre links e setas iguais às dos botões do
+  site.** Três ajustes na etiqueta que segue o cursor ao passar o mouse pelo
+  carrossel. Como é um único elemento reaproveitado nos três carrosséis que se
+  arrastam com o mouse, os três ajustes também valem para "Diretoria
+  executiva" (Quem Somos) e "Corpo docente" (Cursos).
+  1. **Respiro reduzido** — o espaço em branco ao redor do texto e das setas
+     diminuiu.
+  2. **Some sobre links** — ao passar o mouse por cima de um link dentro do
+     carrossel (como o ícone do LinkedIn nos cartões da diretoria), a
+     etiqueta desaparece, pra não tampar o cursor de "mãozinha" nem atrapalhar
+     o clique; volta a aparecer assim que o cursor sai do link mas continua
+     sobre o carrossel.
+  3. **Setas trocadas duas vezes** — primeiro pela mesma seta fina dos botões
+     de "anterior/próximo" (Diretoria/Corpo docente); depois, a pedido,
+     trocadas de novo pelo ícone "pixelado" (feito de pequenos losangos) que
+     já é a seta padrão de todos os outros botões do site (o mesmo de "Entre
+     em contato", por exemplo) — agora as três setas do site usam
+     exatamente o mesmo desenho, só a da esquerda espelhada.
+  - Arquivos: `styles.css` (regra `.drag-hint`, respiro reduzido de `15px
+    24px` para `9px 18px`, e `.drag-hint__arrow--left svg` espelhando o
+    ícone para a seta da esquerda), `script.js` (ícone das setas e a checagem
+    de link dentro da etiqueta, seção "Dica Arraste").
+
+- **14/09/2026** — **Espaço vazio indevido nas perguntas fechadas do FAQ no
+  celular.** Em telas menores que 768px, cada pergunta do FAQ (seção "Dúvidas
+  frequentes") deixava um espaço em branco embaixo mesmo fechada, sem a
+  resposta aparecer. O respiro (padding) da resposta estava sendo aplicado na
+  caixa de fora do item, que não encolhe a zero quando fechado, em vez de no
+  texto de dentro, que é o que realmente fica escondido. Agora o respiro está
+  no texto, igual já era feito nas telas maiores — a resposta só ocupa espaço
+  quando a pergunta é clicada e aberta.
+  - Arquivo: `styles.css` (regra `.faq-item__a` dentro do bloco para telas
+    até 760px, trocada para `.faq-item__a p`).
+
+- **14/09/2026** — **Linhas decorativas da seção "Depoimentos" (Home) não cruzam
+  mais por cima do texto no celular.** Essas duas linhas com degradê, uma
+  acima de "Depoimentos de alunos" e outra abaixo de "Histórias de impacto
+  real", estavam posicionadas em relação ao tamanho inteiro da foto. Em
+  telas pequenas a foto encolhe de um jeito que o texto não acompanha na
+  mesma proporção, e a linha de baixo acabava caindo bem em cima do título.
+  Agora as duas linhas fazem parte do mesmo bloco do texto — ficam sempre
+  coladas acima e abaixo dele, alinhadas pela esquerda, com um puxão sutil
+  para fora (efeito do Figma) — então acompanham o texto em qualquer
+  tamanho de tela e nunca mais passam por cima dele.
+  - Arquivos: `index.html` (linhas das duas `span.dash-line` movidas para
+    dentro de `div.testimonials__caption`), `styles.css` (regras
+    `.dash-line--quote-1` e `.dash-line--quote-2`).
+
+- **14/09/2026** — **Setas do carrossel de depoimentos reposicionadas no
+  celular.** Abaixo de 760px de largura, as setas para trocar de depoimento
+  ("Depoimentos de alunos", página inicial) ficavam coladas no canto direito
+  da faixa verde-água, meio soltas. Agora elas ficam alinhadas à esquerda,
+  logo abaixo do nome do autor do depoimento — e com um espaço maior acima
+  delas, para não parecerem coladas no texto. Também igualei o respiro
+  abaixo das setas ao respiro que já existia no topo da faixa (antes a faixa
+  reservava um espaço extra grande embaixo, pensado para as setas coladas no
+  rodapé; como elas não estão mais lá, esse espaço sobrava vazio).
+  - Arquivo: `styles.css` (bloco `@media (max-width: 760px)`, regras
+    `.testimonials__panel` e `.quote__nav`).
+
+- **14/09/2026** — **Tracinho decorativo dos cartões de curso (Home) agora
+  cruza por cima da foto e da área branca do cartão, em vez de sumir na
+  metade.** Nos dois cartões da seção "Cursos" da página inicial, esse
+  tracinho com degradê foi desenhado para começar em cima da foto e
+  atravessar até a parte branca do cartão — mas a foto tinha um recorte
+  (`overflow: hidden`) que também cortava o tracinho, escondendo boa parte
+  dele. Agora só a foto é recortada (para o zoom do hover continuar contido
+  certinho); o tracinho ficou livre para aparecer inteiro, por cima de tudo,
+  exatamente na mesma posição de antes. Não mexe nos cartões da página
+  Cursos, que não têm esse tracinho.
+  - Arquivos: `index.html:163-166,191-194`, `styles.css:703-730,1263`.
+  - **Ajuste seguinte:** abaixo de 768px de largura (celular), esse mesmo
+    tracinho passou a ficar **escondido**. Nessa largura o cartão empilha
+    (foto em cima, texto embaixo) e o tracinho, pensado para cruzar da foto
+    para o texto lado a lado, perde o sentido separando os dois blocos
+    empilhados. Arquivo: `styles.css:737-741` (novo bloco), `styles.css:1264`
+    (removida a reposição que só valia nesse tamanho de tela).
+
 - **12/09/2026** — **Dois títulos de banner ganharam a mesma entrada "palavra
   por palavra" do título grande da abertura.** São eles: a frase da faixa
   "Nossa trajetória" (foto do escritório, Quem Somos) e o título da faixa
