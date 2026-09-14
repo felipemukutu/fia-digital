@@ -7,8 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Home (.hero) + Quem Somos (.qs-hero) + Cursos (.cursos-hero) + Contato (.contato-hero)
   // Mesma curva (--ease-out → power3.out), só transform/opacity/--reveal, por último dots→dash
   let heroTimeline = null;
-  let heroEntranceDuration = 0;
+  let onHeroEntranceComplete = () => {};
 
+  function runHeroEntrance(opts) {
+  const skipMediaReveal = !!(opts && opts.skipMediaReveal);
   const heroRoot =
     document.querySelector('.hero') ||
     document.querySelector('.qs-hero') ||
@@ -20,7 +22,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const hasGSAP = typeof window.gsap !== 'undefined' && typeof window.SplitText !== 'undefined';
     const headerEl = document.getElementById('site-header');
     const h1 = heroRoot.querySelector('h1');
-    const cleanupPreload = () => document.documentElement.classList.remove('js-hero-preload');
+    // .js-preloader-active normalmente já saiu junto com o fim do preloader;
+    // tirar de novo aqui é só garantia (por exemplo se a entrada da hero
+    // rodar por um caminho que não passou pelo preloader).
+    const cleanupPreload = () => {
+      document.documentElement.classList.remove('js-hero-preload');
+      document.documentElement.classList.remove('js-preloader-active');
+    };
 
     // Mapeia elementos por tipo de hero
     const isHome = heroRoot.classList.contains('hero');
@@ -57,6 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (courseBannerCursos) { courseBannerCursos.style.opacity = '1'; courseBannerCursos.style.transform = 'none'; }
       if (bannerDotsCursos) bannerDotsCursos.style.setProperty('--reveal', '100%');
       if (bannerContentCursos) { bannerContentCursos.style.opacity = '1'; bannerContentCursos.style.transform = 'none'; }
+      onHeroEntranceComplete();
     } else {
       try {
         if (window.SplitText) window.gsap.registerPlugin(window.SplitText);
@@ -95,6 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (bannerContentCursos) window.gsap.set(bannerContentCursos, { willChange: 'transform, opacity' });
 
         const tl = window.gsap.timeline({
+          paused: true,
           defaults: { ease: 'power3.out' },
           onComplete: () => {
             cleanupPreload();
@@ -115,14 +125,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (bannerContentCursos) window.gsap.set(bannerContentCursos, { clearProps: 'willChange' });
             if (dotsEl) dotsEl.classList.add('is-revealed');
             if (bannerDotsCursos) bannerDotsCursos.classList.add('is-revealed');
+            onHeroEntranceComplete();
           }
         });
 
         heroTimeline = tl;
-        heroEntranceDuration = 1.6;
 
-        // 1) Home: fundo/carrossel
-        if (isHome && heroMediaEl) {
+        // 1) Home: fundo/carrossel — pulado quando o preloader já revelou o
+        // hero__media (clip-path) antes de chamar essa timeline, senão ele
+        // "pisca" (esconde de novo em opacity:0 pra depois reaparecer).
+        if (isHome && heroMediaEl && !skipMediaReveal) {
           tl.fromTo(heroMediaEl, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.65, ease: 'power3.out' }, 0);
           const firstSlideImg = heroMediaEl.querySelector('.hero__slide img');
           if (firstSlideImg) tl.fromTo(firstSlideImg, { scale: 1.04 }, { scale: 1, duration: 1.05, ease: 'power2.out', clearProps: 'transform' }, 0);
@@ -180,13 +192,213 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
 
-        heroEntranceDuration = tl.duration();
         window.setTimeout(cleanupPreload, 3600);
       } catch (e) {
         cleanupPreload();
         if (dotsEl) dotsEl.classList.add('is-revealed');
+        onHeroEntranceComplete();
       }
     }
+  }
+  }
+
+  /* ---------- 0b. Preloader de primeira visita (Home) ----------
+     Só roda quando o gate no <head> (index.html) deixou .js-preloader-active
+     no <html> — ou seja, nunca nas outras 3 páginas, e nunca de novo pro
+     mesmo visitante nesta sessão (ver sessionStorage em index.html). A
+     malha reaproveita o .dots existente (só espelha a direção da
+     varredura); o "crescimento da foto" anima o clip-path do próprio
+     .hero__media real — sem duplicar imagem e sem GSAP Flip (ver plano). */
+  function runPreloader(onDone) {
+    const html = document.documentElement;
+    const preloaderEl = document.querySelector('.preloader');
+    const dotsEl = preloaderEl && preloaderEl.querySelector('.dots--preloader');
+    const pctEl = preloaderEl && preloaderEl.querySelector('.preloader__pct');
+    const heroMediaEl = document.querySelector('.hero__media');
+    const firstSlideImg = heroMediaEl && heroMediaEl.querySelector('.hero__slide img');
+
+    // skip() bota o site no estado de sempre (sem preloader), então pode
+    // soltar .js-preloader-active na hora. Já quando a animação REALMENTE
+    // roda, quem solta essa classe é o cleanupPreload() lá da entrada da
+    // hero (só quando ela também já tiver terminado) — ver comentário
+    // dentro do tl.to(heroMediaEl,...) mais abaixo.
+    const skip = () => {
+      html.classList.remove('js-preloader-active');
+      if (preloaderEl) preloaderEl.remove();
+      onDone(false);
+    };
+
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const hasGSAP = typeof window.gsap !== 'undefined';
+
+    if (!preloaderEl || !dotsEl || !pctEl || !heroMediaEl || !firstSlideImg || prefersReduced || !hasGSAP) {
+      skip();
+      return;
+    }
+
+    try {
+      const stageEl = preloaderEl.querySelector('.preloader__stage');
+      const pct = { val: 0 };
+      const setPct = () => { pctEl.textContent = Math.round(pct.val) + '%'; };
+
+      // Onde está, na tela, o quadradinho mais central da malha. Precisa ser
+      // calculado (e não chutado como "meio do hero"): a malha é centrada na
+      // caixa dela, que tem altura própria e fica centrada na janela, enquanto
+      // o hero começa no topo da página — os dois centros não coincidem. Na
+      // horizontal a malha ainda é ancorada pela DIREITA (ver mask-position no
+      // styles.css), então as colunas caem onde o passo de 77px deixar.
+      const centerCell = () => {
+        const s = stageEl.getBoundingClientRect();
+        const cs = window.getComputedStyle(dotsEl);
+        const sq = parseFloat(cs.getPropertyValue('--sq')) || 12;
+        const px = parseFloat(cs.getPropertyValue('--pitch-x')) || 77;
+        const py = parseFloat(cs.getPropertyValue('--pitch-y')) || 77;
+        // Coluna k tem a borda direita em (direita da caixa - k * passo);
+        // linha m começa no topo da caixa. Arredondar acha a mais central.
+        const k = Math.round((s.width / 2 - sq / 2) / px);
+        const m = Math.round((s.height / 2 - sq / 2) / py);
+        return {
+          cx: s.right - k * px - sq / 2,
+          cy: s.top + m * py + sq / 2,
+          size: sq
+        };
+      };
+
+      // Geometria medida uma única vez, quando a fase 2 começa (layout já
+      // assentado, e sem ficar medindo a cada quadro da animação).
+      let geo = null;
+      const getGeo = () => {
+        if (geo) return geo;
+        const c = centerCell();
+        const h = heroMediaEl.getBoundingClientRect();
+        geo = {
+          cx: c.cx, cy: c.cy, cell: c.size,
+          left: h.left, top: h.top, right: h.right, bottom: h.bottom,
+          w: h.width, h: h.height
+        };
+        // Lado do quadrado que, partindo do centro do quadradinho, cobre o
+        // hero inteiro — é o alvo final do crescimento.
+        geo.maxSide = 2 * Math.max(
+          geo.cx - geo.left, geo.right - geo.cx,
+          geo.cy - geo.top, geo.bottom - geo.cy
+        );
+        return geo;
+      };
+
+      // O recorte é sempre um QUADRADO centrado no quadradinho da malha, que
+      // vai sendo aparado pelas bordas do hero conforme cresce. É isso que
+      // mantém a sensação de "quadradinho que vira o fundo" em qualquer tela:
+      // interpolando os quatro lados em % (como antes), a janela assumia a
+      // proporção do hero quase de imediato — no celular, onde o hero é bem
+      // mais alto que largo, isso virava uma tira vertical esticada.
+      const box = { side: 0 };
+      const applySide = () => {
+        const g = getGeo();
+        const half = box.side / 2;
+        const pc = (v) => Math.max(0, v * 100).toFixed(3) + '%';
+        heroMediaEl.style.clipPath = 'inset(' +
+          pc((g.cy - half - g.top) / g.h) + ' ' +
+          pc((g.right - (g.cx + half)) / g.w) + ' ' +
+          pc((g.bottom - (g.cy + half)) / g.h) + ' ' +
+          pc((g.cx - half - g.left) / g.w) + ')';
+      };
+
+      const tl = window.gsap.timeline({
+        onComplete: () => {
+          // Trava a foto visível por estilo inline ANTES de soltar a classe:
+          // sem isso, no instante em que .js-preloader-active sai, volta a
+          // valer a regra que esconde o .hero__media (a do caminho sem
+          // preloader) e a foto pisca escura até a entrada da hero terminar.
+          window.gsap.set(heroMediaEl, { opacity: 1 });
+          html.classList.remove('js-preloader-active');
+          preloaderEl.remove();
+        }
+      });
+
+      // Fase 1 (0→1.7s): malha varre direita→esquerda + contador 0→90.
+      tl.to(dotsEl, { '--reveal': '100%', duration: 1.7, ease: 'power2.inOut' }, 0);
+      tl.to(pct, { val: 90, duration: 1.7, ease: 'power2.inOut', onUpdate: setPct }, 0);
+
+      // Só avança pra fase 2 quando a hero-bg.jpg (fetchpriority=high) já
+      // carregou de verdade — evita crescer a janela sobre uma imagem que
+      // ainda não chegou.
+      tl.addPause('imgReady', () => {
+        const ready = firstSlideImg.complete && firstSlideImg.naturalWidth > 0;
+        if (ready) { tl.play(); return; }
+        const resume = () => tl.play();
+        firstSlideImg.addEventListener('load', resume, { once: true });
+        firstSlideImg.addEventListener('error', resume, { once: true });
+      });
+
+      // Fase 2, em dois tempos — os dois animam o LADO do quadrado (não os
+      // quatro lados do recorte), e o applySide converte isso em clip-path:
+      //   a) o quadradinho central "acende": de nada até o tamanho exato de
+      //      um quadradinho da malha, no lugar exato dele;
+      //   b) daí ele cresce até cobrir a tela, passando por cima da malha do
+      //      centro pra fora (não precisa apagar a malha à parte).
+      const POP = 0.45;   // entrada do quadradinho
+      const GROW = 1.15;  // crescimento até a tela inteira
+
+      tl.to(box, {
+        side: () => getGeo().cell,
+        duration: POP,
+        ease: 'power2.out',
+        onUpdate: applySide
+      }, 'imgReady');
+
+      // Curva: expo.inOut — arranca bem devagar, acelera forte no meio e
+      // assenta no fim.
+      tl.to(box, {
+        side: () => getGeo().maxSide,
+        duration: GROW,
+        ease: 'expo.inOut',
+        onUpdate: applySide,
+        // No fim tira o recorte de vez: o hero é mais alto que a janela, e
+        // deixar o inset fixo cortaria a parte de baixo da foto ao rolar.
+        onComplete: () => { heroMediaEl.style.clipPath = 'none'; }
+      }, 'imgReady+=' + POP);
+
+      tl.to(pct, { val: 100, duration: 0.7, ease: 'power2.out', onUpdate: setPct }, 'imgReady');
+      tl.to(pctEl, { opacity: 0, duration: 0.35 }, 'imgReady+=' + (POP + 0.55));
+
+      // A entrada da hero (menu, título, textos, botões) começa um tiquinho
+      // ANTES da foto terminar de crescer, para as duas emendarem sem
+      // degrau. Só o disparo é antecipado: a limpeza (tirar a classe e o
+      // preloader do DOM) continua no onComplete, no fim de tudo — senão o
+      // fundo branco sairia no meio do crescimento e piscaria escuro.
+      tl.call(() => onDone(true), null, 'imgReady+=' + (POP + GROW - 0.25));
+    } catch (e) {
+      skip();
+    }
+  }
+
+  const preloaderEl = document.querySelector('.preloader');
+  const preloaderShouldRun = !!preloaderEl && document.documentElement.classList.contains('js-preloader-active');
+
+  // Porta de entrada única da animação da hero. A trava garante que ela toca
+  // UMA vez por carregamento de página: se algum caminho chamar de novo (um
+  // segundo disparo do preloader, um retorno tardio do carregamento da foto),
+  // a segunda chamada é ignorada em vez de remontar a timeline e repetir a
+  // entrada inteira do zero, como se a página tivesse recarregado.
+  let heroEntranceStarted = false;
+  const startHeroEntrance = (skipMediaReveal) => {
+    if (heroEntranceStarted) return;
+    heroEntranceStarted = true;
+    runHeroEntrance({ skipMediaReveal: skipMediaReveal });
+    if (heroTimeline) heroTimeline.play();
+  };
+
+  if (preloaderShouldRun) {
+    // Só monta a timeline de entrada (header/h1/textos/botões) depois que o
+    // preloader termina — se montasse antes, o próprio gsap.timeline já
+    // aplicaria o estado "de" (heroMediaEl escondido) na hora da criação,
+    // mesmo pausado, e a foto que o preloader acabou de revelar piscaria.
+    // mediaRevealed diz se foi o clip-path do preloader que já deixou a foto
+    // visível (true) ou se ele nem chegou a rodar de verdade (false, ex.:
+    // faltou GSAP) — nesse segundo caso a hero precisa fazer o fade normal.
+    runPreloader((mediaRevealed) => startHeroEntrance(mediaRevealed));
+  } else {
+    startHeroEntrance(false);
   }
 
   /* ---------- 1. Menu do celular ---------- */
@@ -654,13 +866,12 @@ document.addEventListener('DOMContentLoaded', () => {
         scheduleWipe();
       };
 
-      // Se a entrada do hero ainda está rodando, espera ela terminar para não
-      // competir com o wipe/zoom inicial (evita dois transforms ao mesmo tempo)
-      if (heroTimeline && heroEntranceDuration > 0) {
-        window.setTimeout(startCarousel, Math.ceil(heroEntranceDuration * 1000) + 120);
-      } else {
-        startCarousel();
-      }
+      // Espera a entrada do hero terminar de verdade (não um tempo calculado
+      // a partir do carregamento da página) para não competir com o
+      // wipe/zoom inicial — importante porque, na primeira visita com
+      // preloader, a timeline de entrada só começa a tocar bem depois do
+      // carregamento, então um tempo fixo chutaria errado.
+      onHeroEntranceComplete = () => window.setTimeout(startCarousel, 120);
     }
   }
 

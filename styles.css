@@ -48,7 +48,15 @@ img, svg { display: block; max-width: 100%; }
 @media (max-width: 700px)  { :root { --gutter: 24px; } }
 
 /* ---------- Base ---------- */
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  /* Reserva o espaço da barra de rolagem de forma permanente. Sem isso, todo
+     momento em que a página trava o scroll (é o que o preloader da Home faz)
+     a barra some, a área útil alarga alguns pixels e o conteúdo inteiro dá um
+     pulinho para o lado — e outro quando ela volta. Em sistemas com barra
+     flutuante (padrão do Mac) não muda nada: lá ela não ocupa espaço. */
+  scrollbar-gutter: stable;
+}
 
 body {
   font-family: var(--font);
@@ -241,6 +249,103 @@ strong { font-weight: 600; }
   }
 }
 
+/* ---------- Preloader de primeira visita (Home) ----------
+   Reaproveita o .dots inteiro (mesma malha, mesmo --grad-dots, mesmo
+   --sq/--pitch) — só espelha a direção da varredura (direita→esquerda,
+   o oposto do padrão do site). Ligado/desligado via classe no <html>
+   (ver index.html e script.js). Nunca aparece nas outras 3 páginas,
+   que não têm essa marcação nem esse elemento. */
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: none;
+  align-items: center;
+  background: var(--white);
+  padding-inline: var(--edge);
+}
+html.js-preloader-active .preloader { display: flex; }
+/* Trava o scroll enquanto o preloader roda. Quem evita o pulo lateral nessa
+   hora é o scrollbar-gutter lá no bloco "Base" do html — de propósito NÃO
+   aqui e NÃO no body: no body, com overflow hidden, ele reservaria um espaço
+   interno e estreitaria o conteúdo justamente durante o preloader. */
+html.js-preloader-active,
+html.js-preloader-active body { overflow: hidden; }
+
+.preloader__stage {
+  position: relative;
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  height: min(562px, 60vh); /* proporção do quadro do Figma (562/1024 do frame 1440×1024) */
+}
+
+.preloader__pct {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  /* Mesmo tamanho/peso do H1 da abertura (ver .hero h1) */
+  font-size: clamp(34px, 3.9vw, 54px);
+  line-height: 1.1;
+  font-weight: 400;
+  color: var(--deep);
+  font-variant-numeric: tabular-nums; /* dígitos não "dançam" de largura ao contar */
+}
+
+/* Repare que esta malha NÃO usa [data-reveal] (como as outras do site):
+   aquele atributo traz junto a regra genérica [data-reveal]{opacity:0}, que
+   só volta a 1 quando o script soma .is-revealed — e aqui quem comanda a
+   revelação é a timeline do preloader, via --reveal. Com o atributo, o
+   elemento ficava invisível o tempo todo por causa do opacity. Por isso as
+   camadas de máscara da varredura são declaradas aqui direto.
+   Fórmula do --sweep idêntica à padrão (só o ângulo do gradiente
+   invertido: 270deg em vez de 90deg), pra área revelada crescer a partir
+   da borda DIREITA em vez da esquerda. */
+.dots.dots--preloader {
+  position: absolute;
+  inset: 0;
+  --reveal: 0%;
+  --sweep: linear-gradient(270deg, #000 0%, #000 var(--reveal), transparent calc(var(--reveal) + 10%), transparent 100%);
+  -webkit-mask-image: var(--mask-base), var(--sweep);
+  mask-image: var(--mask-base), var(--sweep);
+  -webkit-mask-size: var(--pitch-x) var(--pitch-y), var(--pitch-x) var(--pitch-y), 100% 100%, 100% 100%;
+  mask-size: var(--pitch-x) var(--pitch-y), var(--pitch-x) var(--pitch-y), 100% 100%, 100% 100%;
+  -webkit-mask-repeat: repeat, repeat, no-repeat, no-repeat;
+  mask-repeat: repeat, repeat, no-repeat, no-repeat;
+  /* Mesma âncora do .dots--hero: cola o quadrado da direita (o lado por
+     onde a varredura começa) na borda direita da caixa, em vez de deixar
+     sobrar meio vão. Só nas duas camadas que repetem em grade — o --fade
+     e o --sweep continuam em "left top", senão a varredura sairia
+     deslocada. */
+  -webkit-mask-position: calc(100% + var(--pitch-x) - var(--sq)) top, calc(100% + var(--pitch-x) - var(--sq)) top, left top, left top;
+  mask-position: calc(100% + var(--pitch-x) - var(--sq)) top, calc(100% + var(--pitch-x) - var(--sq)) top, left top, left top;
+}
+
+/* O Hero "sobe" por cima do preloader e fica transparente enquanto o
+   preloader está ativo — é isso que deixa o fundo branco + a malha
+   aparecerem ao redor da janelinha da foto (que é o próprio
+   .hero__media real, só que clipado a um único ponto no centro, ou
+   seja, invisível, no início). Conforme o clip-path cresce (script.js),
+   a foto vai cobrindo a malha por cima, do centro pra fora — sem
+   precisar de nenhuma animação extra na malha em si. */
+html.js-preloader-active .hero { background: transparent; z-index: 61; }
+html.js-preloader-active .hero__media {
+  opacity: 1;
+  clip-path: inset(50% 50% 50% 50%); /* colapsado num ponto — nada visível até o script.js começar a crescer */
+}
+/* O título é branco e, enquanto o fundo do preloader também é branco, ele
+   passa despercebido — mas assim que a foto começa a crescer por trás dele,
+   apareceria por cima dela, antes da hora. Fica escondido até o preloader
+   entregar o bastão para a entrada normal da hero (que revela palavra por
+   palavra). */
+html.js-preloader-active .hero h1 { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  html.js-preloader-active .preloader { display: none; }
+  html.js-preloader-active .hero { background: var(--ink); z-index: auto; }
+  html.js-preloader-active .hero__media { clip-path: none; opacity: 1; }
+}
+
 /* ---------- Linhas tracejadas com gradiente ---------- */
 .dash-line {
   display: block;
@@ -289,7 +394,7 @@ strong { font-weight: 600; }
    Antes da timeline rodar o <html> tem .js-hero-preload (injetado no <head>).
    Tudo que a timeline vai animar já nasce escondido só com transform/opacity.
    Sem JS a classe nunca entra, então nada fica escondido. */
-.js-hero-preload .hero__media { opacity: 0; }
+.js-hero-preload:not(.js-preloader-active) .hero__media { opacity: 0; }
 .js-hero-preload .site-header { opacity: 0; transform: translateY(-22px); }
 .js-hero-preload .hero__aside { opacity: 0; transform: translateY(14px); }
 .js-hero-preload .hero__actions { opacity: 0; transform: translateY(12px); }

@@ -28,10 +28,25 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
-  <script>document.documentElement.classList.add('js-hero-preload')</script>
+  <script>
+    document.documentElement.classList.add('js-hero-preload');
+    try {
+      if (!window.sessionStorage.getItem('fiaPreloaderShown')) {
+        document.documentElement.classList.add('js-preloader-active');
+        window.sessionStorage.setItem('fiaPreloaderShown', '1');
+      }
+    } catch (e) { /* sessionStorage indisponível (navegação privada) — sem pré-loader, site funciona normal */ }
+  </script>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+<div class="preloader" aria-hidden="true">
+  <div class="preloader__stage">
+    <div class="dots dots--preloader"></div>
+    <p class="preloader__pct">0%</p>
+  </div>
+</div>
 
 <!-- ============ Barra de navegação ============ -->
 <header class="site-header" id="site-header">

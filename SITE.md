@@ -41,8 +41,10 @@ design original.
 
 ## Páginas
 
-- **Página inicial** (`index.html`) — a página principal, com estas faixas de
-  cima para baixo:
+- **Página inicial** (`index.html`) — a página principal. Na primeira vez que
+  alguém visita o site (uma vez por sessão do navegador), uma animação de
+  carregamento aparece antes de tudo — veja o "Histórico de mudanças" — e
+  depois dela vêm estas faixas de cima para baixo:
   1. **Topo** — logo, links "Quem Somos" e "Cursos", botão "Entre em contato".
      No celular ele vira um menu que abre e fecha.
   2. **Abertura (hero)** — foto de fundo escurecida (agora um carrossel de 3
@@ -206,6 +208,56 @@ Da página Cursos:
 ---
 
 ## Histórico de mudanças
+
+- **14/09/2026** — **Nova animação de carregamento na página inicial, só na
+  primeira vez que alguém visita o site (baseada numa sequência de quadros
+  que o cliente desenhou no Figma).** Antes de a abertura (hero) aparecer,
+  a pessoa vê por alguns segundos a mesma malha de quadradinhos verdes que já
+  existe no site, "acendendo" da direita para a esquerda dentro de uma caixa
+  do tamanho do container central do site, com uma porcentagem de 0% a 100%
+  no canto inferior esquerdo. Perto do fim, no centro exato dessa malha
+  aparece uma pequena janela com a própria foto de fundo da abertura, que
+  cresce até cobrir a tela toda — nesse momento a malha já foi coberta por
+  ela — e só então o menu, o título, os textos e os botões da abertura entram
+  do jeito que já entravam antes (nada mudou nessa parte).
+  - Aparece **uma vez por sessão do navegador**: se a pessoa fechar a aba/o
+    navegador e voltar depois, vê a animação de novo; navegando entre as
+    páginas do site na mesma visita, ela não se repete. Nunca aparece nas
+    páginas Quem Somos, Cursos ou Contato.
+  - Respeita o ajuste "reduzir movimento" do sistema (quem usa essa
+    preferência não vê a animação, a página já aparece pronta) e, se o GSAP
+    não carregar por qualquer motivo, o site cai direto no comportamento de
+    sempre, sem travar nem mostrar uma tela em branco.
+  - Não usa nenhuma biblioteca nova — reaproveita o GSAP que o site já
+    carrega e a técnica de "clip-path" (recorte) que o próprio carrossel da
+    abertura já usa para trocar de foto.
+  - A porcentagem usa o mesmo tamanho e peso de letra do título grande da
+    abertura (H1), em verde escuro, no canto inferior esquerdo da caixa.
+  - Dois detalhes importantes de manutenção (foram os dois bugs da primeira
+    versão, então vale não repetir):
+    1. Essa malha do pré-loader é a única do site que **não** usa o atributo
+       `data-reveal`. Aquele atributo traz junto uma regra que deixa o
+       elemento invisível até o site somar a classe `is-revealed` — e aqui
+       quem comanda a revelação é a animação do pré-loader. Se alguém
+       adicionar `data-reveal` nessa malha, ela some da tela inteira.
+    2. O crescimento da foto **não** anima os quatro lados do recorte
+       separadamente: anima o *lado de um quadrado* e o script converte isso
+       em recorte a cada quadro. Parece detalhe, mas é o que mantém a janela
+       quadrada durante todo o percurso. Animando os quatro lados, ela assume
+       a proporção da abertura quase de imediato — no computador passa
+       despercebido (a abertura é larga), mas no celular, onde ela é bem mais
+       alta que larga, virava uma tira vertical esticada.
+    3. A posição do quadradinho é **medida**, não fixa: o script descobre
+       onde está o quadradinho mais central da malha (lendo o tamanho e o
+       passo direto do CSS) e recorta exatamente ali. Um valor fixo não
+       funciona porque a malha e a abertura têm centros diferentes, e a malha
+       ainda é alinhada pela borda direita.
+  - Arquivos: `index.html` (marcação nova logo no início do `<body>`, e o
+    script no `<head>` que decide se mostra ou não), `styles.css` (regras
+    `.preloader`, `.preloader__stage`, `.preloader__pct`,
+    `.dots--preloader`), `script.js` (nova função `runPreloader`, e a
+    entrada da abertura foi reorganizada numa função `runHeroEntrance` para
+    poder rodar só depois que essa animação termina, quando ela acontece).
 
 - **14/09/2026** — **Malha de pontinhos da seção "Sobre" não invade mais
   atrás do título.** A faixa da direita (que cobre a largura toda da seção,
