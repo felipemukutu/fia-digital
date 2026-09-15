@@ -222,6 +222,38 @@ Da página Cursos:
 
 ## Histórico de mudanças
 
+- **14/09/2026** — **Consertado o "refresh" no fim da animação de abertura da
+  Home.** Na primeira visita, assim que a contagem de 0% a 100% terminava e a
+  foto acabava de crescer, a página inteira dava um apagão e se remontava — a
+  impressão era de que o site tinha recarregado sozinho.
+
+  Não era recarregamento: era o navegador tendo que **redesenhar a página toda
+  de uma vez só**. A animação de abertura entregava o bastão derrubando tudo no
+  mesmo instante — a abertura deixava de ser uma camada própria, as três travas
+  de rolagem soltavam juntas, a tela branca do preloader era arrancada do HTML e,
+  logo depois, quinze elementos perdiam a aceleração de vídeo ao mesmo tempo.
+  Tudo isso num único quadro, com fotos de tela cheia por cima. O conserto foi
+  espalhar essas etapas em quadros diferentes e deixar a ordem das camadas fixa,
+  em vez de trocá-la no meio da animação.
+
+  De quebra, a **malha de quadradinhos da abertura agora varre de verdade na
+  tela**. Ela estava invisível durante a própria varredura e só acendia no fim,
+  já pronta — o que também contribuía para a sensação de "recarregou". Vale para
+  a Home, Quem Somos, Contato e o banner de Cursos.
+
+  Também entraram duas limpezas: as duas fotos do carrossel da abertura saíram
+  de PNG para JPEG (cerca de 540 KB a menos para baixar e abrir), e os dois links
+  de ícone do navegador que apontavam para arquivos inexistentes (`favicon.ico` e
+  `apple-touch-icon.png`) foram removidos das quatro páginas — davam erro 404 em
+  toda visita. O ícone continua funcionando pelo logo em SVG.
+  - Arquivos: `styles.css` (camada fixa do `.hero` e do `.site-header`, e as
+    malhas conduzidas pela animação não repetem mais o efeito do CSS),
+    `script.js` (as etapas do fim da animação agora acontecem em quadros
+    separados; a malha acende junto com a varredura), `index.html` (fotos em
+    JPEG) e as quatro páginas (links de ícone quebrados removidos).
+  - Imagens: `images/hero-bg-2.png` e `images/hero-bg-3.png` viraram
+    `images/hero-bg-2.jpg` e `images/hero-bg-3.jpg`.
+
 - **14/09/2026** — **O link "Entre em contato conosco" do rodapé ficou maior.**
   Aquele link no fim do rodapé passou de 16px para 20px, ficando mais fácil de
   ver. Como o rodapé é o mesmo em todas as páginas, a mudança vale para o site

@@ -138,24 +138,38 @@ document.addEventListener('DOMContentLoaded', () => {
           defaults: { ease: 'power3.out' },
           onComplete: () => {
             cleanupPreload();
-            if (headerEl) window.gsap.set(headerEl, { clearProps: 'willChange' });
-            if (asideHome) window.gsap.set(asideHome, { clearProps: 'willChange' });
-            if (actionsHome) window.gsap.set(actionsHome, { clearProps: 'willChange' });
-            if (eyebrowQS) window.gsap.set(eyebrowQS, { clearProps: 'willChange' });
-            if (eyebrowCursos) window.gsap.set(eyebrowCursos, { clearProps: 'willChange' });
-            if (asideCursos) window.gsap.set(asideCursos, { clearProps: 'willChange' });
-            if (eyebrowContato) window.gsap.set(eyebrowContato, { clearProps: 'willChange' });
-            if (textContato) window.gsap.set(textContato, { clearProps: 'willChange' });
-            if (formContato) window.gsap.set(formContato, { clearProps: 'willChange' });
-            window.gsap.set(words, { clearProps: 'willChange' });
-            if (heroMediaEl) window.gsap.set(heroMediaEl, { clearProps: 'willChange' });
-            if (dashCursos.length) window.gsap.set(dashCursos, { clearProps: 'willChange' });
-            if (courseBannerCursos) window.gsap.set(courseBannerCursos, { clearProps: 'willChange' });
-            if (bannerDotsCursos) window.gsap.set(bannerDotsCursos, { clearProps: 'willChange' });
-            if (bannerContentCursos) window.gsap.set(bannerContentCursos, { clearProps: 'willChange' });
             if (dotsEl) dotsEl.classList.add('is-revealed');
             if (bannerDotsCursos) bannerDotsCursos.classList.add('is-revealed');
             onHeroEntranceComplete();
+
+            // Soltar o will-change devolve ~15 elementos para a pintura
+            // normal, e cada um desses é uma camada acelerada que o
+            // navegador desmonta na hora. Fazer isso no MESMO quadro em que
+            // o cleanupPreload() acabou de tirar a classe .js-hero-preload
+            // (que sozinha levanta umas 25 regras de CSS da página inteira)
+            // juntava recálculo de layout e desmonte de camadas num quadro
+            // só — um tranco bem visível no fim da animação. Um quadro de
+            // distância já separa as duas coisas.
+            window.requestAnimationFrame(() => {
+              if (headerEl) window.gsap.set(headerEl, { clearProps: 'willChange' });
+              if (asideHome) window.gsap.set(asideHome, { clearProps: 'willChange' });
+              if (actionsHome) window.gsap.set(actionsHome, { clearProps: 'willChange' });
+              if (eyebrowQS) window.gsap.set(eyebrowQS, { clearProps: 'willChange' });
+              if (eyebrowCursos) window.gsap.set(eyebrowCursos, { clearProps: 'willChange' });
+              if (asideCursos) window.gsap.set(asideCursos, { clearProps: 'willChange' });
+              if (eyebrowContato) window.gsap.set(eyebrowContato, { clearProps: 'willChange' });
+              if (textContato) window.gsap.set(textContato, { clearProps: 'willChange' });
+              if (formContato) window.gsap.set(formContato, { clearProps: 'willChange' });
+              window.gsap.set(words, { clearProps: 'willChange' });
+              // heroMediaEl fica de fora de propósito: 120ms depois o
+              // carrossel começa um zoom de 9s na foto e precisa da camada
+              // de volta. Desmontar agora para remontar logo em seguida é
+              // trabalho jogado fora — e era mais um tranco no mesmo ponto.
+              if (dashCursos.length) window.gsap.set(dashCursos, { clearProps: 'willChange' });
+              if (courseBannerCursos) window.gsap.set(courseBannerCursos, { clearProps: 'willChange' });
+              if (bannerDotsCursos) window.gsap.set(bannerDotsCursos, { clearProps: 'willChange' });
+              if (bannerContentCursos) window.gsap.set(bannerContentCursos, { clearProps: 'willChange' });
+            });
           }
         });
 
@@ -192,7 +206,18 @@ document.addEventListener('DOMContentLoaded', () => {
         // 5) Dots — penúltimo (antes só dos dash-lines)
         if (dotsEl) {
           const isHiddenByCSS = window.getComputedStyle(dotsEl).display === 'none';
-          if (!isHiddenByCSS) tl.to(dotsEl, { '--reveal': '100%', duration: 0.90, ease: 'power2.inOut' }, 0.95);
+          // O onStart é o que faz a varredura APARECER. A malha tem
+          // [data-reveal], e essa regra deixa o elemento em opacity 0 até
+          // alguém somar .is-revealed — que antes só entrava no fim da
+          // timeline. Resultado: a varredura inteira rodava invisível e a
+          // malha surgia pronta de uma vez, no mesmo instante do resto do
+          // desmonte. Acendendo aqui, ela varre de verdade na tela.
+          if (!isHiddenByCSS) tl.to(dotsEl, {
+            '--reveal': '100%',
+            duration: 0.90,
+            ease: 'power2.inOut',
+            onStart: () => dotsEl.classList.add('is-revealed')
+          }, 0.95);
           else dotsEl.classList.add('is-revealed');
         }
 
@@ -214,7 +239,12 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           if (bannerDotsCursos) {
             const hiddenDots = window.getComputedStyle(bannerDotsCursos).display === 'none';
-            if (!hiddenDots) tl.to(bannerDotsCursos, { '--reveal': '100%', duration: 0.90, ease: 'power2.inOut' }, 'heroDone+=0.20');
+            if (!hiddenDots) tl.to(bannerDotsCursos, {
+              '--reveal': '100%',
+              duration: 0.90,
+              ease: 'power2.inOut',
+              onStart: () => bannerDotsCursos.classList.add('is-revealed')
+            }, 'heroDone+=0.20');
             else bannerDotsCursos.classList.add('is-revealed');
           }
           if (bannerContentCursos) {
@@ -341,9 +371,17 @@ document.addEventListener('DOMContentLoaded', () => {
           // valer a regra que esconde o .hero__media (a do caminho sem
           // preloader) e a foto pisca escura até a entrada da hero terminar.
           window.gsap.set(heroMediaEl, { opacity: 1 });
+          // Tirar a classe já é o quadro pesado: a página sai de "uma tela de
+          // altura, travada" para os ~10.000px roláveis inteiros, e isso é um
+          // recálculo de layout do documento todo. Soltar o Lenis e arrancar
+          // o elemento fixo do preloader em cima disso empilhava tudo num
+          // quadro só. Vão para o quadro seguinte — a foto já cobre a tela
+          // inteira aqui, então esse quadro extra de preloader não aparece.
           html.classList.remove('js-preloader-active');
-          soltarRolagem();
-          preloaderEl.remove();
+          window.requestAnimationFrame(() => {
+            soltarRolagem();
+            if (preloaderEl.isConnected) preloaderEl.remove();
+          });
         }
       });
 

@@ -255,6 +255,16 @@ html.lenis, html.lenis body { height: auto; }
   animation: dots-sweep .9s cubic-bezier(.4, 0, .2, 1) forwards;
 }
 
+/* Estas quatro malhas quem varre é a timeline da hero (GSAP), não o
+   observador de rolagem — é a mesma lista do isControlled() no script.js.
+   Nelas a classe .is-revealed serve só para acender a opacidade junto com a
+   varredura; a animação do CSS acima rodaria por cima do GSAP (animação de
+   CSS ganha de estilo inline) e a malha varreria duas vezes. */
+.dots--hero[data-reveal].is-revealed,
+.dots--qs-hero[data-reveal].is-revealed,
+.dots--contato[data-reveal].is-revealed,
+.dots--course-banner[data-reveal].is-revealed { animation: none; }
+
 @keyframes dots-sweep {
   to { --reveal: 100%; }
 }
@@ -338,14 +348,15 @@ html.js-preloader-active body { overflow: hidden; }
   mask-position: calc(100% + var(--pitch-x) - var(--sq)) top, calc(100% + var(--pitch-x) - var(--sq)) top, left top, left top;
 }
 
-/* O Hero "sobe" por cima do preloader e fica transparente enquanto o
-   preloader está ativo — é isso que deixa o fundo branco + a malha
-   aparecerem ao redor da janelinha da foto (que é o próprio
-   .hero__media real, só que clipado a um único ponto no centro, ou
-   seja, invisível, no início). Conforme o clip-path cresce (script.js),
-   a foto vai cobrindo a malha por cima, do centro pra fora — sem
-   precisar de nenhuma animação extra na malha em si. */
-html.js-preloader-active .hero { background: transparent; z-index: 61; }
+/* O Hero fica transparente enquanto o preloader está ativo — é isso que
+   deixa o fundo branco + a malha aparecerem ao redor da janelinha da foto
+   (que é o próprio .hero__media real, só que clipado a um único ponto no
+   centro, ou seja, invisível, no início). Conforme o clip-path cresce
+   (script.js), a foto vai cobrindo a malha por cima, do centro pra fora —
+   sem precisar de nenhuma animação extra na malha em si.
+   O empilhamento (z-index) NÃO muda aqui: ele é fixo no .hero e no
+   .site-header — ver o comentário em ".hero". */
+html.js-preloader-active .hero { background: transparent; }
 html.js-preloader-active .hero__media {
   opacity: 1;
   clip-path: inset(50% 50% 50% 50%); /* colapsado num ponto — nada visível até o script.js começar a crescer */
@@ -359,7 +370,7 @@ html.js-preloader-active .hero h1 { opacity: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   html.js-preloader-active .preloader { display: none; }
-  html.js-preloader-active .hero { background: var(--ink); z-index: auto; }
+  html.js-preloader-active .hero { background: var(--ink); }
   html.js-preloader-active .hero__media { clip-path: none; opacity: 1; }
 }
 
@@ -476,7 +487,11 @@ html.js-preloader-active .hero h1 { opacity: 0; }
 .site-header {
   position: absolute;
   inset: 0 0 auto 0;
-  z-index: 20;
+  /* Acima do .hero (61) e do preloader (60); abaixo da dica de arraste (70)
+     e do lightbox de vídeo (100). Enquanto o preloader roda o cabeçalho está
+     em opacity 0 (ver .js-hero-preload .site-header), então ficar por cima
+     do fundo branco não aparece. */
+  z-index: 62;
 }
 
 .site-header__inner {
@@ -548,6 +563,13 @@ html.js-preloader-active .hero h1 { opacity: 0; }
    ========================================================================== */
 .hero {
   position: relative;
+  /* Acima do preloader (z-index 60) e abaixo do cabeçalho (62). É PERMANENTE
+     de propósito: antes esse 61 só valia enquanto o preloader rodava, e no
+     fim da animação o hero perdia a camada própria de uma vez — o navegador
+     tinha que jogar fora e refazer a pintura das três fotos de tela cheia no
+     mesmo quadro em que a página voltava a rolar, e isso aparecia como um
+     apagão, igualzinho a um "refresh". Fixo, não tem transição nenhuma. */
+  z-index: 61;
   min-height: 800px;
   display: flex;
   flex-direction: column;
