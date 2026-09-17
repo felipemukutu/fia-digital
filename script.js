@@ -791,32 +791,55 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.fonts) document.fonts.ready.then(equalizeBenefitsTiles);
   }
 
-  /* ---------- 5. Filtro de modalidade no catálogo de cursos ---------- */
+  /* ---------- 5. Filtro de modalidade e paginação no catálogo de cursos ---------- */
   const catalog = document.querySelector('[data-catalog]');
   const filterButtons = document.querySelectorAll('[data-filter]');
 
   if (catalog && filterButtons.length) {
+    const PAGE_SIZE = 9;
     const cards = Array.from(catalog.querySelectorAll('[data-cat]'));
     const empty = document.querySelector('[data-catalog-empty]');
+    const clearButton = document.querySelector('[data-catalog-clear]');
+    const moreButton = document.querySelector('[data-catalog-more]');
+    const moreWrap = document.querySelector('[data-catalog-more-wrap]');
 
-    const apply = (active) => {
-      let visible = 0;
-      cards.forEach((card) => {
-        const show = !active || card.dataset.cat === active;
-        card.hidden = !show;
-        if (show) visible += 1;
-      });
-      if (empty) empty.hidden = visible > 0;
+    let activeFilter = null;
+    let visibleCount = PAGE_SIZE;
+
+    const apply = () => {
+      const matching = cards.filter((card) => !activeFilter || card.dataset.cat === activeFilter);
+      const toShow = new Set(matching.slice(0, visibleCount));
+      cards.forEach((card) => { card.hidden = !toShow.has(card); });
+      if (empty) empty.hidden = matching.length > 0;
+      if (moreWrap) moreWrap.hidden = matching.length <= visibleCount;
+    };
+
+    const setFilter = (filter) => {
+      filterButtons.forEach((btn) => btn.setAttribute('aria-pressed', String(btn.dataset.filter === filter)));
+      activeFilter = filter;
+      visibleCount = PAGE_SIZE;
+      apply();
     };
 
     filterButtons.forEach((button) => {
       button.addEventListener('click', () => {
         const wasOn = button.getAttribute('aria-pressed') === 'true';
-        filterButtons.forEach((other) => other.setAttribute('aria-pressed', 'false'));
-        if (!wasOn) button.setAttribute('aria-pressed', 'true');
-        apply(wasOn ? null : button.dataset.filter);
+        setFilter(wasOn ? null : button.dataset.filter);
       });
     });
+
+    if (clearButton) {
+      clearButton.addEventListener('click', () => setFilter(null));
+    }
+
+    if (moreButton) {
+      moreButton.addEventListener('click', () => {
+        visibleCount += PAGE_SIZE;
+        apply();
+      });
+    }
+
+    apply();
   }
 
   /* ---------- 6. Formulário de contato ----------

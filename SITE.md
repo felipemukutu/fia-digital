@@ -77,8 +77,8 @@ design original.
   4. **Nossa trajetória** — foto do escritório em tela cheia com a frase em
      branco por cima.
   5. **A FIA** — a história da escola ao lado de um vídeo que toca sozinho
-     (sem som) e, ao ser clicado, abre a janela de vídeo — ainda esperando o
-     link do vídeo do YouTube que aparece dentro dessa janela.
+     (sem som) e, ao ser clicado, abre a janela com o vídeo "Por que existimos
+     | Manifesto FIA Business School" do YouTube.
   6. **Faixa deslizante** — "Você no controle da jornada" repetido, andando
      sozinho da direita para a esquerda, com fotinhas entre as frases.
   7. **Missão, visão e valores** — três cartões brancos em um carrossel que
@@ -97,9 +97,11 @@ design original.
      que você controla".
   2. **Faixa "Pós-Graduação & MBAs"** — foto em tela cheia com o texto por cima.
   3. **Catálogo** — os três filtros de modalidade (Graduação, Pós-graduação e
-     MBA) e a grade de cursos. Os filtros **funcionam**: clicar em um deles
-     mostra só os cursos daquela modalidade e clicar de novo volta a mostrar
-     todos.
+     MBA) e a grade com os **18 cursos reais** da FIA digital (4 MBAs e 14
+     Pós-graduações — ainda não há nenhum curso de Graduação cadastrado, então
+     esse filtro mostra a mensagem "Ainda não temos cursos nesta modalidade").
+     Os filtros **funcionam**: clicar em um deles mostra só os cursos daquela
+     modalidade e clicar de novo volta a mostrar todos.
   4. **Faixa de imagem** — foto larga com os quadradinhos verdes na lateral.
   5. **Corpo docente** — cartão verde de apresentação e quatro professores em
      um carrossel que rola de lado.
@@ -124,6 +126,16 @@ design original.
   Todos os botões e links de "Entre em contato" do site (topo, rodapé, FAQ,
   "Falar com consultor" e "Matricule-se") agora levam para esta página.
 
+- **Página não encontrada** (`404.html`) — aparece quando alguém acessa um
+  endereço que não existe no site. Fundo escuro igual ao da abertura da Home,
+  com o número "404" em verde-limão, uma frase curta, e dois botões: "Voltar
+  para a Home" e "Ver os cursos". Usa o mesmo menu e o mesmo rodapé das outras
+  páginas. **Importante:** esse arquivo só é servido automaticamente para
+  endereços quebrados se o serviço onde o site está hospedado reconhecer a
+  convenção `404.html` (Netlify, GitHub Pages e a maioria dos serviços
+  modernos reconhecem sozinhos; confirme com quem cuida da hospedagem se não
+  tiver certeza).
+
 ---
 
 ## Arquivos do projeto
@@ -133,6 +145,8 @@ index.html        Página inicial
 quem-somos.html   Página "Quem Somos"
 cursos.html       Página "Cursos"
 contato.html      Página "Contato"
+404.html          Página de "endereço não encontrado"
+favicon.ico       Ícone do site para navegadores antigos (reserva do SVG)
 robots.txt        Controle de rastreamento para buscadores
 sitemap.xml       Mapa do site para o Google
 styles.css        Todos os estilos do site
@@ -186,6 +200,8 @@ As imagens vieram do Figma e foram reduzidas para carregar rápido:
 | `logo-fia-digital-badge.svg` | logo antiga em quadrado verde-água, não é mais usada — o topo agora monta a mesma caixa com CSS e o arquivo `logo-fia-digital-mark-header.svg` (veja mais abaixo) |
 | `logo-fia-digital-horizontal.svg` | logo deitada (usada no rodapé) |
 | `mukutu.svg` | selo da agência no fim do rodapé |
+| `apple-touch-icon.png` | ícone quadrado (180×180) usado quando alguém salva o site na tela inicial do celular |
+| `og-share-card.jpg` | imagem de 1200×630 que aparece quando um link do site é compartilhado no WhatsApp, LinkedIn, Facebook etc. — feita com a cara da marca (fundo escuro, malha de pontinhos, logo e a frase "A profundidade do conhecimento encontra a autonomia do digital.") em vez de reaproveitar uma foto de conteúdo |
 
 Da página Quem Somos (todos os arquivos começam com `qs-` ou `diretor-`):
 
@@ -221,6 +237,172 @@ Da página Cursos:
 ---
 
 ## Histórico de mudanças
+
+- **17/09/2026** — **Botão "Carregar mais cursos" ajustado para usar o mesmo
+  estilo do site, e o aviso de "nenhum curso encontrado" ganhou um visual
+  mais cuidado.**
+  1. **Botão consistente** — o botão "Carregar mais cursos" tinha ficado
+     diferente dos outros botões do site porque faltava dizer o *tamanho*
+     dele (o sistema de botões da FIA digital sempre combina um tamanho —
+     pequeno, médio ou grande — com uma cor). Sem essa informação, o botão
+     usava um estilo "cru", sem a altura e o respaço interno padrão. Corrigido
+     usando o tamanho médio, a mesma combinação já usada nos botões
+     "Graduação / Pós-graduação / MBA" do rodapé.
+  2. **Aviso de "nenhum curso encontrado" redesenhado** — antes era só uma
+     linha de texto solta. Agora é um cartão branco com borda verde-água (o
+     mesmo estilo dos cartões de números "+46 anos" da página inicial),
+     espaçamento interno generoso, um ícone de lupa, o texto centralizado e
+     um link "Limpar filtros" abaixo — que tira o filtro ativo e volta a
+     mostrar todos os cursos, sem precisar clicar de novo no filtro que
+     estava ligado.
+  - Arquivos: `cursos.html` (classe de tamanho no botão e nova marcação do
+    aviso vazio), `styles.css` (visual do cartão de aviso vazio e o conserto
+    para o botão "Limpar filtros" não herdar a aparência padrão do
+    navegador), `script.js` (o botão "Limpar filtros" agora reaproveita a
+    mesma função que os filtros já usavam para limpar a seleção).
+
+- **17/09/2026** — **Foto nos 6 cursos que estavam sem imagem, conserto do
+  filtro de modalidade e botão "Carregar mais cursos" na página Cursos.**
+  1. **Fotos nos 6 cursos sem imagem** — os últimos 6 cursos da grade (Gestão
+     de Projetos, Gestão de RH, Liderança e Gestão de Pessoas, Marketing,
+     Mental Health e Tecnologias Emergentes) apareciam com um bloco
+     verde-água no lugar da foto. A pedido do usuário, agora eles também têm
+     uma das 3 fotos genéricas do site (as mesmas reaproveitadas nos outros
+     12 cursos).
+  2. **Consertado o filtro que não filtrava** — clicar em "Graduação",
+     "Pós-graduação" ou "MBA" não escondia os outros cursos. A causa: o
+     cartão de curso (`.course-card`) já tinha uma regra de estilo própria
+     dizendo "sempre apareça" (`display: flex`), e essa regra ganhava do
+     comando `hidden` do navegador — então o card continuava visível mesmo
+     "escondido". O mesmo problema (e o mesmo conserto) já tinha acontecido
+     antes com a janela de vídeo (`.lightbox`) — bastou ensinar o CSS que,
+     quando o card está com `hidden`, ele deve mesmo sumir da tela.
+  3. **Botão "Carregar mais cursos"** — a grade agora mostra só os 9
+     primeiros cursos (do filtro que estiver ativo) e, embaixo, centralizado,
+     aparece o botão "Carregar mais cursos". Cada clique mostra mais 9 e o
+     botão desaparece sozinho quando não sobra mais nenhum para carregar. Os
+     filtros de modalidade continuam funcionando junto: trocar de filtro
+     volta a mostrar só os 9 primeiros daquela modalidade.
+  - Arquivos: `cursos.html` (fotos novas nos 6 cursos e o botão "Carregar
+    mais cursos"), `styles.css` (regra que corrige o `hidden` dos cartões e
+    o estilo do botão), `script.js` (lógica de filtro reescrita para
+    funcionar junto com a paginação de 9 em 9).
+
+- **17/09/2026** — **Lista real dos 18 cursos e vídeo institucional do
+  YouTube ligados na página Cursos e Quem Somos.**
+  1. **18 cursos reais** (página Cursos) — a grade de cursos, que antes
+     repetia dois títulos de exemplo, agora tem os 18 cursos de verdade, a
+     partir do print que o usuário enviou: 4 MBAs (Finanças, Negócios
+     Internacionais, Cibersegurança e Proteção Digital, Tecnologia e
+     Transformação Digital) e 14 Pós-graduações (Administração Estratégica,
+     Certificado Operador de Mercado Financeiro, Cibersegurança, Consultoria
+     Empresarial, Diversidade e Cultura Organizacional, Engenharia e
+     Arquitetura de Software, ESG, Formação Executiva para C-Level, Gestão de
+     Projetos, Gestão de Recursos Humanos, Liderança e Gestão Estratégica de
+     Pessoas, Marketing Estratégia/Tecnologia/Advertising, Mental Health e
+     Qualidade de Vida no Trabalho, e Tecnologias Emergentes). O filtro
+     "Graduação" continua no lugar, mas mostra a mensagem "Ainda não temos
+     cursos nesta modalidade" porque nenhum curso dessa modalidade foi
+     enviado ainda.
+     - Como ainda não recebemos uma foto para cada um dos 18 cursos, reaproveitei
+       as 3 fotos genéricas que o site já tinha (`curso-1.jpg`, `curso-2.jpg`,
+       `curso-3.jpg`), alternando entre elas nos 18 cursos (veja a entrada mais
+       recente abaixo — os últimos 6 também ganharam uma dessas fotos a pedido
+       do usuário). Assim que você tiver uma foto própria para cada curso, é só
+       me avisar (ou trocar o `src` da tag `<img>` de cada cartão em
+       `cursos.html`) que eu coloco no lugar certo.
+  2. **Vídeo institucional real** (página Quem Somos) — as duas molduras de
+     vídeo ("A FIA" e "Vídeo institucional") agora abrem o vídeo real do
+     YouTube "Por que existimos | Manifesto FIA Business School", no lugar da
+     mensagem de "vídeo ainda não conectado".
+  - Arquivos: `cursos.html` (grade de cursos e o bloco de dados estruturados
+    `Course` no `<head>`, um por curso), `quem-somos.html` (`data-youtube` das
+    duas molduras de vídeo e o bloco de dados estruturados `VideoObject`).
+
+- **17/09/2026** — **Adicionado Schema Markup (dados estruturados) nas quatro
+  páginas** — um "rótulo" invisível no código que ajuda o Google a entender o
+  que é cada parte do site. Não muda nada visualmente; o efeito é só na busca.
+  1. **Organização** (`EducationalOrganization`) — nas quatro páginas: diz ao
+     Google que a FIA digital é uma instituição de ensino, com nome, endereço
+     do site, logo e descrição.
+  2. **Site** (`WebSite`) — só na página inicial.
+  3. **Perguntas frequentes** (`FAQPage`) — nas três páginas que têm a seção
+     "Dúvidas frequentes" (inicial, Cursos e Contato), usando o texto que já
+     existia. Pode fazer essas perguntas aparecerem expansíveis direto no
+     resultado de busca do Google.
+  4. **Caminho de navegação** (`BreadcrumbList`) — em Quem Somos, Cursos e
+     Contato, mostrando ao Google o caminho "FIA digital > Cursos", por
+     exemplo.
+  5. **Pessoas** (`Person`) — os quatro nomes da Diretoria executiva (Quem
+     Somos) e os quatro do Corpo docente (Cursos), com nome e cargo.
+  - **Ficou de fora, por enquanto:** os cursos do catálogo (ainda são exemplos
+    de texto, não a lista real — ver nota em `cursos.html:97-98`), o vídeo
+    institucional (ainda sem o link definitivo do YouTube) e os links de
+    Instagram, YouTube e LinkedIn de todo mundo — todos ainda apontam para
+    endereços genéricos (`instagram.com/`, `linkedin.com/`, sem o perfil real)
+    em vez do perfil verdadeiro da FIA digital ou de cada pessoa. Assim que
+    esses links forem trocados pelos de verdade, vale completar o Schema com
+    eles.
+  - Arquivos: `index.html`, `quem-somos.html`, `cursos.html`, `contato.html`
+    (bloco `<script type="application/ld+json">` no `<head>` de cada página).
+
+- **17/09/2026** — **Criada a página 404, completado o ícone do site (favicon)
+  e feita uma imagem própria para compartilhamento nas redes (Open Graph).**
+  Conferência pedida pelo usuário em seis itens técnicos de SEO: título e
+  descrição de cada página e o `robots.txt` já existiam e estavam bons, sem
+  necessidade de mexer. Faltavam ou estavam incompletos os outros três:
+  1. **Página 404 nova** (`404.html`) — ver a descrição em "Páginas" acima.
+  2. **Favicon completo** — o site já tinha o ícone em SVG
+     (`images/logo-fia-digital-mark-header.svg`), mas sem um arquivo `.ico`
+     de reserva (para navegadores antigos que não entendem SVG) nem um ícone
+     para quando o site é salvo na tela inicial do celular. Criei os dois a
+     partir do logo em quadrado verde-água já usado no site
+     (`images/logo-fia-digital-badge.svg`): `favicon.ico` (na raiz do
+     projeto) e `images/apple-touch-icon.png`, e adicionei as duas tags no
+     `<head>` das cinco páginas (as quatro existentes + a nova 404).
+  3. **Imagem de Open Graph própria da marca** — antes, cada página usava uma
+     foto de conteúdo já usada no site (a foto da abertura, do escritório
+     etc.) como imagem de compartilhamento. Criei uma imagem única de
+     1200×630 (`images/og-share-card.jpg`) desenhada especificamente para
+     esse fim — fundo escuro da marca, malha de pontinhos, o logo e a frase
+     "A profundidade do conhecimento encontra a autonomia do digital." — e
+     troquei o `og:image`/`twitter:image` das quatro páginas + da 404 para
+     apontar para ela.
+  - **Se a logo ou as cores da marca mudarem no futuro**, essas três peças
+    (favicon, apple-touch-icon e a imagem de compartilhamento) precisam ser
+    refeitas à mão — não são geradas automaticamente a partir do
+    `styles.css`. É só pedir para o assistente para elas serem atualizadas.
+  - Arquivos: `404.html` (novo), `favicon.ico` (novo),
+    `images/apple-touch-icon.png` (novo), `images/og-share-card.jpg` (novo),
+    `styles.css` (nova seção "Página 404": `.error-hero`, `.dots--error` e
+    afins), e as tags de favicon/`og:image`/`twitter:image` atualizadas em
+    `index.html`, `quem-somos.html`, `cursos.html` e `contato.html`.
+
+- **17/09/2026** — **Página 404 refeita em fundo claro, a pedido do usuário
+  (a primeira versão era em fundo escuro).** Antes de mexer direto no código,
+  desenhei 4 variações de layout num quadro à parte para o usuário escolher
+  — a escolhida foi a "Mint quiet": mesma composição centralizada de antes,
+  só que em fundo `--mint` (verde bem claro) em vez de `--ink` (escuro), e
+  com o número "404" em verde-água (`--aqua`) e o título em verde escuro
+  (`--deep`) no lugar do branco.
+  - **Botões menores** — trocados de `btn--lg` (88px de altura) para
+    `btn--md` (70px), reaproveitando a variante de tamanho que já existe no
+    site em vez de criar uma nova.
+  - **Malha de pontinhos recentralizada** — a pedido do usuário, para não
+    disputar espaço com o menu. Antes ela ficava colada perto do topo da
+    seção (`top: 96px`), perto o bastante do cabeçalho para "brigar" com
+    ele visualmente; agora ela fica centralizada na altura da seção inteira
+    (`top: 50%` com `transform: translateY(-50%)`), então nunca mais chega
+    perto do menu, em qualquer altura de tela.
+  - **Cabeçalho da 404 passou para a versão clara** (`site-header--light`,
+    a mesma usada em Quem Somos/Cursos/Contato) — necessário porque o texto
+    branco do cabeçalho escuro ficava ilegível sobre o novo fundo claro. O
+    botão "Entre em contato" do cabeçalho também trocou de
+    `btn--stroke-white` para `btn--stroke-dark-soft`, a variante certa para
+    fundo claro.
+  - Arquivos: `styles.css` (`.error-hero`, `.dots--error`, `.error-hero__code`
+    e `.error-hero h1`/`.error-hero__text`), `404.html` (classes dos botões
+    e do cabeçalho).
 
 - **14/09/2026** — **Consertado o "refresh" no fim da animação de abertura da
   Home.** Na primeira visita, assim que a contagem de 0% a 100% terminava e a
